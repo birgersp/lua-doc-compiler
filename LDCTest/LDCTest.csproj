@@ -49,9 +49,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LLineParserTest.cs" />
-    <Compile Include="LParserTest.cs" />
-    <Compile Include="UnitTest1.cs" />
+    <Compile Include="src\LineParserTest.cs" />
+    <Compile Include="src\ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

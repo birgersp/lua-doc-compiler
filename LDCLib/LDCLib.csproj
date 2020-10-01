@@ -41,9 +41,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LLineParser.cs" />
-    <Compile Include="LParser.cs" />
-    <Compile Include="LuaDocElements.cs" />
+    <Compile Include="src\LineParser.cs" />
+    <Compile Include="src\Parser.cs" />
+    <Compile Include="src\LuaDocElements.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

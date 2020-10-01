@@ -9,32 +9,32 @@ namespace LDCLib
 {
     public class Parser
     {
-        public LFunction CurrentLFunction;
-        private LFunctionReturn CurrentLFunctionReturn;
-        public LType CurrentLType;
-        public readonly Dictionary<string, LModule> LModules = new Dictionary<string, LModule>();
-        private readonly List<LVariable> lFunctionParamBuffer = new List<LVariable>();
-        public LModule CurrentModule;
-        private StringBuilder DescriptionBuffer = new StringBuilder();
+        public LuaFunction CurrentLuaFunction;
+        private LuaFunctionReturn CurrentLuaFunctionReturn;
+        public LuaType CurrentLuaType;
+        public readonly Dictionary<string, LuaModule> LuaModules = new Dictionary<string, LuaModule>();
+        private readonly List<LuaVariable> LuaFunctionParamBuffer = new List<LuaVariable>();
+        public LuaModule CurrentModule;
+        private readonly StringBuilder DescriptionBuffer = new StringBuilder();
 
         public Parser()
         {
-            LModules.Add("", new LModule(""));
+            LuaModules.Add("", new LuaModule(""));
             NewDoc();
         }
 
         private void FinishCurrent()
         {
-            CurrentLFunction = null;
-            CurrentLType = null;
-            lFunctionParamBuffer.Clear();
+            CurrentLuaFunction = null;
+            CurrentLuaType = null;
+            LuaFunctionParamBuffer.Clear();
             DescriptionBuffer.Clear();
         }
 
         public void NewDoc()
         {
             FinishCurrent();
-            CurrentModule = LModules[""];
+            CurrentModule = LuaModules[""];
         }
 
         public void ParseLine(string line)
@@ -45,22 +45,22 @@ namespace LDCLib
             {
                 lineParser.SkipWhitespace();
                 var fullName = Regex.Replace(lineParser.GetRest(), "\\(.*", "");
-                string lFunctionName;
-                LType parentLType = null;
+                string functionName;
+                LuaType parentLuaType = null;
                 if (fullName.Contains(":"))
                 {
                     var split = fullName.Split(':');
-                    parentLType = GetLType(CurrentModule, split[0]);
-                    lFunctionName = split[1];
+                    parentLuaType = GetLuaType(CurrentModule, split[0]);
+                    functionName = split[1];
                 }
                 else
                 {
-                    lFunctionName = fullName;
+                    functionName = fullName;
                 }
-                CurrentLFunction = new LFunction(lFunctionName, DescriptionBuffer.ToString(), CurrentLFunctionReturn);
-                if (parentLType != null)
+                CurrentLuaFunction = new LuaFunction(functionName, DescriptionBuffer.ToString(), CurrentLuaFunctionReturn);
+                if (parentLuaType != null)
                 {
-                    parentLType.Functions.Add(CurrentLFunction);
+                    parentLuaType.Functions.Add(CurrentLuaFunction);
                 }
                 return;
             }
@@ -89,7 +89,7 @@ namespace LDCLib
                 // Example:
                 // -- @type MyType
                 string name = lineParser.GetNextWord();
-                CurrentLType = GetLType(CurrentModule, name);
+                CurrentLuaType = GetLuaType(CurrentModule, name);
                 return;
             }
 
@@ -97,32 +97,32 @@ namespace LDCLib
             {
                 // Example:
                 // -- @extends #SuperType
-                if (CurrentLType == null)
+                if (CurrentLuaType == null)
                 {
                     throw new Exception("Extends tag error: No type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
                 SplitTypeName(moduleAndTypeName, out string moduleName, out string typeName);
-                LModule lModule = GetLModule(moduleName);
-                CurrentLType.SuperLType = GetLType(lModule, typeName);
+                LuaModule luaModule = GetLuaModule(moduleName);
+                CurrentLuaType.SuperLuaType = GetLuaType(luaModule, typeName);
             }
 
             if (tag == "field")
             {
                 // Example:
                 // -- @field #number x The X coordinate
-                if (CurrentLType == null)
+                if (CurrentLuaType == null)
                 {
                     throw new Exception("Field tag error: No parent type");
                 }
                 SplitTypeName(lineParser.GetNextWord(), out string moduleName, out string typeName);
-                LModule lModule = GetLModule(moduleName);
-                LType lType = GetLType(lModule, typeName);
+                LuaModule luaModule = GetLuaModule(moduleName);
+                LuaType luaType = GetLuaType(luaModule, typeName);
                 var name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 var description = lineParser.GetRest();
-                LVariable lVariable = new LVariable(name, lType, description);
-                CurrentLType.Fields.Add(lVariable);
+                LuaVariable lVariable = new LuaVariable(name, luaType, description);
+                CurrentLuaType.Fields.Add(lVariable);
                 return;
             }
 
@@ -134,31 +134,31 @@ namespace LDCLib
                 SplitTypeName(moduleAndTypeName, out string moduleName, out string typeName);
                 lineParser.SkipWhitespace();
                 string description = lineParser.GetRest();
-                LModule lModule = GetLModule(moduleName);
-                LType lType = GetLType(lModule, typeName);
-                CurrentLFunctionReturn = new LFunctionReturn(lType, description);
+                LuaModule lModule = GetLuaModule(moduleName);
+                LuaType lType = GetLuaType(lModule, typeName);
+                CurrentLuaFunctionReturn = new LuaFunctionReturn(lType, description);
                 return;
             }
         }
 
-        private LModule GetLModule(string name)
+        private LuaModule GetLuaModule(string name)
         {
-            LModule lModule;
-            if (!LModules.TryGetValue(name, out lModule))
+            LuaModule lModule;
+            if (!LuaModules.TryGetValue(name, out lModule))
             {
-                lModule = new LModule(name);
-                LModules.Add(name, lModule);
+                lModule = new LuaModule(name);
+                LuaModules.Add(name, lModule);
             }
             return lModule;
         }
 
-        private static LType GetLType(LModule lModule, string typeName)
+        private static LuaType GetLuaType(LuaModule lModule, string typeName)
         {
-            LType lType;
-            if (!lModule.LTypes.TryGetValue(typeName, out lType))
+            LuaType lType;
+            if (!lModule.LuaTypes.TryGetValue(typeName, out lType))
             {
-                lType = new LType(typeName);
-                lModule.LTypes.Add(typeName, lType);
+                lType = new LuaType(typeName);
+                lModule.LuaTypes.Add(typeName, lType);
             }
             return lType;
         }

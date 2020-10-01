@@ -6,37 +6,37 @@ using System.Threading.Tasks;
 
 namespace LDCLib
 {
-    public class LModule
+    public class LuaModule
     {
         public readonly string Name;
-        public readonly Dictionary<string, LType> LTypes = new Dictionary<string, LType>();
+        public readonly Dictionary<string, LuaType> LuaTypes = new Dictionary<string, LuaType>();
 
-        public LModule(string name)
+        public LuaModule(string name)
         {
             Name = name;
         }
     }
 
-    public class LType
+    public class LuaType
     {
-        public LType SuperLType = null;
-        public readonly List<LVariable> Fields = new List<LVariable>();
-        public readonly List<LFunction> Functions = new List<LFunction>();
+        public LuaType SuperLuaType = null;
+        public readonly List<LuaVariable> Fields = new List<LuaVariable>();
+        public readonly List<LuaFunction> Functions = new List<LuaFunction>();
         public readonly string Name;
 
-        public LType(string name)
+        public LuaType(string name)
         {
             Name = name;
         }
     }
 
-    public class LVariable
+    public class LuaVariable
     {
-        public readonly LType Type;
+        public readonly LuaType Type;
         public readonly string Name;
         public readonly string Description;
 
-        public LVariable(string name, LType type, string description)
+        public LuaVariable(string name, LuaType type, string description)
         {
             Name = name;
             Type = type;
@@ -44,14 +44,14 @@ namespace LDCLib
         }
     }
 
-    public class LFunction
+    public class LuaFunction
     {
-        public List<LVariable> Parameters = new List<LVariable>();
+        public List<LuaVariable> Parameters = new List<LuaVariable>();
         public readonly string Name;
-        public readonly LFunctionReturn Return;
+        public readonly LuaFunctionReturn Return;
         public readonly string Description = "";
 
-        public LFunction(string name, string description, LFunctionReturn fReturn)
+        public LuaFunction(string name, string description, LuaFunctionReturn fReturn)
         {
             Name = name;
             Description = description;
@@ -59,12 +59,12 @@ namespace LDCLib
         }
     }
 
-    public class LFunctionReturn
+    public class LuaFunctionReturn
     {
-        public readonly LType Type;
+        public readonly LuaType Type;
         public readonly string Description;
 
-        public LFunctionReturn(LType type, string description)
+        public LuaFunctionReturn(LuaType type, string description)
         {
             Type = type;
             Description = description;
