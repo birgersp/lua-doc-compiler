@@ -143,8 +143,7 @@ namespace LDCLib
 
         private LuaModule GetLuaModule(string name)
         {
-            LuaModule lModule;
-            if (!LuaModules.TryGetValue(name, out lModule))
+            if (!LuaModules.TryGetValue(name, out LuaModule lModule))
             {
                 lModule = new LuaModule(name);
                 LuaModules.Add(name, lModule);
@@ -154,8 +153,7 @@ namespace LDCLib
 
         private static LuaType GetLuaType(LuaModule lModule, string typeName)
         {
-            LuaType lType;
-            if (!lModule.LuaTypes.TryGetValue(typeName, out lType))
+            if (!lModule.LuaTypes.TryGetValue(typeName, out LuaType lType))
             {
                 lType = new LuaType(typeName);
                 lModule.LuaTypes.Add(typeName, lType);
