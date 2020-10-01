@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 namespace LDCTest
 {
     [TestClass]
-    public class LLineParserTest
+    public class LineParserTest
     {
         [TestMethod]
         public void TestMatchNext()
         {
-            var lp = new LLineParser("");
+            var lp = new LineParser("");
             Assert.IsFalse(lp.MatchNext(' '));
-            lp = new LLineParser("Hello");
+            lp = new LineParser("Hello");
             Assert.IsTrue(lp.MatchNext('H'));
             Assert.IsTrue(lp.MatchNext('e'));
             Assert.IsTrue(lp.MatchNext('l'));
@@ -29,9 +29,9 @@ namespace LDCTest
         [TestMethod]
         public void TestMatchNextString()
         {
-            var lp = new LLineParser("");
+            var lp = new LineParser("");
             Assert.IsFalse(lp.MatchNext("Hello"));
-            lp = new LLineParser("Hello world");
+            lp = new LineParser("Hello world");
             Assert.IsTrue(lp.MatchNext("Hello"));
             Assert.IsTrue(lp.MatchNext(" wo"));
             Assert.IsTrue(lp.MatchNext("rld"));
@@ -41,7 +41,7 @@ namespace LDCTest
         [TestMethod]
         public void TestSkipNext()
         {
-            var lp = new LLineParser("Hello world\ttest");
+            var lp = new LineParser("Hello world\ttest");
             lp.MatchNext("Hello");
             Assert.IsFalse(lp.MatchNext("world"));
             lp.SkipNext(' ');
@@ -53,7 +53,7 @@ namespace LDCTest
         [TestMethod]
         public void TestSkipTo()
         {
-            var lp = new LLineParser("Hello world\ttest");
+            var lp = new LineParser("Hello world\ttest");
             lp.SkipTo(' ');
             Assert.IsFalse(lp.MatchNext("world"));
         }
@@ -61,7 +61,7 @@ namespace LDCTest
         [TestMethod]
         public void TestGetNextWord()
         {
-            var lp = new LLineParser("Hello   world\t  \t  test");
+            var lp = new LineParser("Hello   world\t  \t  test");
             Assert.AreEqual("Hello", lp.GetNextWord());
             Assert.AreEqual("world", lp.GetNextWord());
             Assert.AreEqual("test", lp.GetNextWord());
@@ -70,7 +70,7 @@ namespace LDCTest
         [TestMethod]
         public void TestGetRest()
         {
-            var lp = new LLineParser("Hello   world");
+            var lp = new LineParser("Hello   world");
             lp.SkipTo('w');
             Assert.AreEqual("world", lp.GetRest());
         }

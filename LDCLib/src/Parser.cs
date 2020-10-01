@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LDCLib
 {
-    public class LParser
+    public class Parser
     {
         public LFunction CurrentLFunction;
         private LFunctionReturn CurrentLFunctionReturn;
@@ -17,7 +17,7 @@ namespace LDCLib
         public LModule CurrentModule;
         private StringBuilder DescriptionBuffer = new StringBuilder();
 
-        public LParser()
+        public Parser()
         {
             LModules.Add("", new LModule(""));
             NewDoc();
@@ -39,7 +39,7 @@ namespace LDCLib
 
         public void ParseLine(string line)
         {
-            var lineParser = new LLineParser(line);
+            var lineParser = new LineParser(line);
 
             if (lineParser.MatchNext("function"))
             {

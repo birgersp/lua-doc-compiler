@@ -9,12 +9,12 @@ using System.Threading.Tasks;
 namespace LDCTest
 {
     [TestClass]
-    public class LParserTest
+    public class ParserTest
     {
         [TestMethod]
         public void TestParseLType()
         {
-            var parser = new LParser();
+            var parser = new Parser();
 
             // Parse a type
             Assert.IsTrue(parser.CurrentLType == null);
@@ -47,7 +47,7 @@ namespace LDCTest
         [TestMethod]
         public void TestParseFunction()
         {
-            var parser = new LParser();
+            var parser = new Parser();
             Assert.IsTrue(parser.CurrentLFunction == null);
             parser.ParseLine("-- Some function");
             parser.ParseLine("-- @param #number x The input number");

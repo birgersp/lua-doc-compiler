@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 
 namespace LDCLib
 {
-    public class LLineParser
+    public class LineParser
     {
         public readonly string Data;
 
         public int Index { get; private set; } = 0;
 
-        public LLineParser(string data)
+        public LineParser(string data)
         {
             this.Data = data;
         }
