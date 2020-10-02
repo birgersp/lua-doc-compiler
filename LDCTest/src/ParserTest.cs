@@ -3,6 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,8 +19,8 @@ namespace LDCTest
             Assert.IsTrue(parser.CurrentLuaType == null);
             parser.ParseLine("-- @type MyType");
             Assert.IsTrue(parser.CurrentLuaType != null);
-            LuaType lType = parser.CurrentLuaType;
-            Assert.AreEqual("MyType", lType.Name);
+            LuaType type = parser.CurrentLuaType;
+            Assert.AreEqual("MyType", type.Name);
         }
 
         [TestMethod]
@@ -27,11 +28,11 @@ namespace LDCTest
         {
             var parser = new Parser();
             parser.ParseLine("-- @type MyType");
-            LuaType lType = parser.CurrentLuaType;
-            Assert.IsTrue(lType.SuperLuaType == null);
+            LuaType type = parser.CurrentLuaType;
+            Assert.IsTrue(type.SuperLuaType == null);
             parser.ParseLine("-- @extends #SuperType");
-            Assert.IsTrue(lType.SuperLuaType != null);
-            Assert.AreEqual("SuperType", lType.SuperLuaType.Name);
+            Assert.IsTrue(type.SuperLuaType != null);
+            Assert.AreEqual("SuperType", type.SuperLuaType.Name);
         }
 
         [TestMethod]
@@ -39,17 +40,17 @@ namespace LDCTest
         {
             var parser = new Parser();
             parser.ParseLine("-- @type MyType");
-            LuaType lType = parser.CurrentLuaType;
-            Assert.AreEqual(0, lType.Fields.Count);
+            LuaType type = parser.CurrentLuaType;
+            Assert.AreEqual(0, type.Fields.Count);
             parser.ParseLine("-- @field #number x The X coordinate");
-            Assert.AreEqual(1, lType.Fields.Count);
-            LuaVariable lVariable = lType.Fields[0];
-            Assert.AreEqual("x", lVariable.Name);
-            Assert.AreEqual("The X coordinate", lVariable.Description);
-            LuaType numberLType = lVariable.Type;
-            Assert.AreEqual("number", numberLType.Name);
-            Assert.AreEqual(1, lType.Fields.Count);
-            Assert.AreEqual(0, lType.Functions.Count);
+            Assert.AreEqual(1, type.Fields.Count);
+            LuaVariable variable = type.Fields[0];
+            Assert.AreEqual("x", variable.Name);
+            Assert.AreEqual("The X coordinate", variable.Description);
+            LuaType numberType = variable.Type;
+            Assert.AreEqual("number", numberType.Name);
+            Assert.AreEqual(1, type.Fields.Count);
+            Assert.AreEqual(0, type.Functions.Count);
         }
 
         [TestMethod]
@@ -62,11 +63,11 @@ namespace LDCTest
             parser.ParseLine("-- @return #MyType Some data");
             parser.ParseLine("function foobar(x)");
             Assert.IsTrue(parser.CurrentLuaFunction != null);
-            LuaFunction lFunction = parser.CurrentLuaFunction;
-            Assert.AreEqual("foobar", lFunction.Name);
-            Assert.AreEqual("Some function", lFunction.Description);
-            LuaFunctionReturn lFunctionReturn = lFunction.Return;
-            Assert.AreEqual("MyType", lFunctionReturn.Type.Name);
+            LuaFunction function = parser.CurrentLuaFunction;
+            Assert.AreEqual("foobar", function.Name);
+            Assert.AreEqual("Some function", function.Description);
+            LuaFunctionReturn functionReturn = function.Return;
+            Assert.AreEqual("MyType", functionReturn.Type.Name);
         }
     }
 }

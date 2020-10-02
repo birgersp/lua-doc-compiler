@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LDCLib.src;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -117,11 +118,11 @@ namespace LDCLib
                 }
                 SplitTypeName(lineParser.GetNextWord(), out string moduleName, out string typeName);
                 LuaModule luaModule = GetLuaModule(moduleName);
-                LuaType luaType = GetLuaType(luaModule, typeName);
+                LuaType type = GetLuaType(luaModule, typeName);
                 var name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 var description = lineParser.GetRest();
-                LuaVariable lVariable = new LuaVariable(name, luaType, description);
+                LuaVariable lVariable = new LuaVariable(name, type, description);
                 CurrentLuaType.Fields.Add(lVariable);
                 return;
             }
@@ -134,29 +135,29 @@ namespace LDCLib
                 SplitTypeName(moduleAndTypeName, out string moduleName, out string typeName);
                 lineParser.SkipWhitespace();
                 string description = lineParser.GetRest();
-                LuaModule lModule = GetLuaModule(moduleName);
-                LuaType lType = GetLuaType(lModule, typeName);
-                CurrentLuaFunctionReturn = new LuaFunctionReturn(lType, description);
+                LuaModule module = GetLuaModule(moduleName);
+                LuaType type = GetLuaType(module, typeName);
+                CurrentLuaFunctionReturn = new LuaFunctionReturn(type, description);
                 return;
             }
         }
 
         private LuaModule GetLuaModule(string name)
         {
-            if (!LuaModules.TryGetValue(name, out LuaModule lModule))
+            if (!LuaModules.TryGetValue(name, out LuaModule module))
             {
-                lModule = new LuaModule(name);
-                LuaModules.Add(name, lModule);
+                module = new LuaModule(name);
+                LuaModules.Add(name, module);
             }
-            return lModule;
+            return module;
         }
 
-        private static LuaType GetLuaType(LuaModule lModule, string typeName)
+        private static LuaType GetLuaType(LuaModule module, string typeName)
         {
-            if (!lModule.LuaTypes.TryGetValue(typeName, out LuaType lType))
+            if (!module.LuaTypes.TryGetValue(typeName, out LuaType lType))
             {
                 lType = new LuaType(typeName);
-                lModule.LuaTypes.Add(typeName, lType);
+                module.LuaTypes.Add(typeName, lType);
             }
             return lType;
         }
@@ -175,6 +176,10 @@ namespace LDCLib
                 typeName = moduleAndTypeName;
             }
         }
-    }
 
+        public static Node<string> ParseTypeNodeTree(string data)
+        {
+            return new Node<string>("");
+        }
+    }
 }

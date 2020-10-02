@@ -52,6 +52,7 @@
     <Compile Include="src\LineParserTest.cs" />
     <Compile Include="src\ParserTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="src\UtilTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
