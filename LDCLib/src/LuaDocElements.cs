@@ -10,6 +10,7 @@ namespace LDCLib
     {
         public readonly string Name;
         public readonly Dictionary<string, LuaType> LuaTypes = new Dictionary<string, LuaType>();
+        public readonly Dictionary<string, LuaFunction> LuaFunctions = new Dictionary<string, LuaFunction>();
 
         public LuaModule(string name)
         {

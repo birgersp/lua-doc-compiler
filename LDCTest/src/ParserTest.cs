@@ -13,18 +13,18 @@ namespace LDCTest
     public class ParserTest
     {
         [TestMethod]
-        public void TestParseType()
+        public void ParseType()
         {
             var parser = new Parser();
             Assert.IsTrue(parser.CurrentLuaType == null);
             parser.ParseLine("-- @type MyType");
             Assert.IsTrue(parser.CurrentLuaType != null);
             LuaType type = parser.CurrentLuaType;
-            Assert.AreEqual("MyType", type.Name);
+            Assert.AreEqual("#MyType", type.Name);
         }
 
         [TestMethod]
-        public void TestParseSuperType()
+        public void ParseSuperType()
         {
             var parser = new Parser();
             parser.ParseLine("-- @type MyType");
@@ -32,11 +32,11 @@ namespace LDCTest
             Assert.IsTrue(type.SuperLuaType == null);
             parser.ParseLine("-- @extends #SuperType");
             Assert.IsTrue(type.SuperLuaType != null);
-            Assert.AreEqual("SuperType", type.SuperLuaType.Name);
+            Assert.AreEqual("#SuperType", type.SuperLuaType.Name);
         }
 
         [TestMethod]
-        public void TestTypeField()
+        public void ParseTypeField()
         {
             var parser = new Parser();
             parser.ParseLine("-- @type MyType");
@@ -48,26 +48,41 @@ namespace LDCTest
             Assert.AreEqual("x", variable.Name);
             Assert.AreEqual("The X coordinate", variable.Description);
             LuaType numberType = variable.Type;
-            Assert.AreEqual("number", numberType.Name);
+            Assert.AreEqual("#number", numberType.Name);
             Assert.AreEqual(1, type.Fields.Count);
             Assert.AreEqual(0, type.Functions.Count);
         }
 
         [TestMethod]
-        public void TestParseFunction()
+        public void ParseFunction()
         {
             var parser = new Parser();
-            Assert.IsTrue(parser.CurrentLuaFunction == null);
             parser.ParseLine("-- Some function");
             parser.ParseLine("-- @param #number x The input number");
             parser.ParseLine("-- @return #MyType Some data");
             parser.ParseLine("function foobar(x)");
-            Assert.IsTrue(parser.CurrentLuaFunction != null);
-            LuaFunction function = parser.CurrentLuaFunction;
+
+            Assert.IsTrue(parser.LuaModules.ContainsKey(""));
+            Assert.AreEqual(1, parser.LuaModules[""].LuaFunctions.Count);
+            Assert.IsTrue(parser.LuaModules[""].LuaFunctions.ContainsKey("foobar"));
+
+            // Function header
+            LuaFunction function = parser.LuaModules[""].LuaFunctions["foobar"];
             Assert.AreEqual("foobar", function.Name);
+
+            // Function description
             Assert.AreEqual("Some function", function.Description);
+
+            // Function parameters
+            Assert.AreEqual(1, function.Parameters.Count);
+            var parameter = function.Parameters[0];
+            Assert.AreEqual("#number", parameter.Type.Name);
+            Assert.AreEqual("x", parameter.Name);
+            Assert.AreEqual("The input number", parameter.Description);
+
+            // Function return type
             LuaFunctionReturn functionReturn = function.Return;
-            Assert.AreEqual("MyType", functionReturn.Type.Name);
+            Assert.AreEqual("#MyType", functionReturn.Type.Name);
         }
     }
 }

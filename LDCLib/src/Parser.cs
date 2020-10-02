@@ -10,7 +10,6 @@ namespace LDCLib
 {
     public class Parser
     {
-        public LuaFunction CurrentLuaFunction;
         private LuaFunctionReturn CurrentLuaFunctionReturn;
         public LuaType CurrentLuaType;
         public readonly Dictionary<string, LuaModule> LuaModules = new Dictionary<string, LuaModule>();
@@ -26,7 +25,6 @@ namespace LDCLib
 
         private void FinishCurrent()
         {
-            CurrentLuaFunction = null;
             CurrentLuaType = null;
             LuaFunctionParamBuffer.Clear();
             DescriptionBuffer.Clear();
@@ -44,6 +42,8 @@ namespace LDCLib
 
             if (lineParser.MatchNext("function"))
             {
+                // Example:
+                // function foobar(x)
                 lineParser.SkipWhitespace();
                 var fullName = Regex.Replace(lineParser.GetRest(), "\\(.*", "");
                 string functionName;
@@ -58,11 +58,16 @@ namespace LDCLib
                 {
                     functionName = fullName;
                 }
-                CurrentLuaFunction = new LuaFunction(functionName, DescriptionBuffer.ToString(), CurrentLuaFunctionReturn);
+                var function = new LuaFunction(functionName, DescriptionBuffer.ToString(), CurrentLuaFunctionReturn);
+                function.Parameters.AddRange(LuaFunctionParamBuffer);
                 if (parentLuaType != null)
                 {
-                    parentLuaType.Functions.Add(CurrentLuaFunction);
+                    parentLuaType.Functions.Add(function);
+                } else
+                {
+                    CurrentModule.LuaFunctions.Add(functionName, function);
                 }
+                FinishCurrent();
                 return;
             }
 
@@ -89,7 +94,7 @@ namespace LDCLib
             {
                 // Example:
                 // -- @type MyType
-                string name = lineParser.GetNextWord();
+                string name = $"{CurrentModule.Name}#{lineParser.GetNextWord()}";
                 CurrentLuaType = GetLuaType(CurrentModule, name);
                 return;
             }
@@ -103,9 +108,9 @@ namespace LDCLib
                     throw new Exception("Extends tag error: No type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
-                SplitTypeName(moduleAndTypeName, out string moduleName, out string typeName);
+                GetModuleName(moduleAndTypeName, out string moduleName);
                 LuaModule luaModule = GetLuaModule(moduleName);
-                CurrentLuaType.SuperLuaType = GetLuaType(luaModule, typeName);
+                CurrentLuaType.SuperLuaType = GetLuaType(luaModule, moduleAndTypeName);
             }
 
             if (tag == "field")
@@ -116,9 +121,10 @@ namespace LDCLib
                 {
                     throw new Exception("Field tag error: No parent type");
                 }
-                SplitTypeName(lineParser.GetNextWord(), out string moduleName, out string typeName);
+                string moduleAndTypeName = lineParser.GetNextWord();
+                GetModuleName(moduleAndTypeName, out string moduleName);
                 LuaModule luaModule = GetLuaModule(moduleName);
-                LuaType type = GetLuaType(luaModule, typeName);
+                LuaType type = GetLuaType(luaModule, moduleAndTypeName);
                 var name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 var description = lineParser.GetRest();
@@ -132,13 +138,28 @@ namespace LDCLib
                 // Example:
                 // -- @return #MyType Some data
                 string moduleAndTypeName = lineParser.GetNextWord();
-                SplitTypeName(moduleAndTypeName, out string moduleName, out string typeName);
+                GetModuleName(moduleAndTypeName, out string moduleName);
                 lineParser.SkipWhitespace();
                 string description = lineParser.GetRest();
                 LuaModule module = GetLuaModule(moduleName);
-                LuaType type = GetLuaType(module, typeName);
+                LuaType type = GetLuaType(module, moduleAndTypeName);
                 CurrentLuaFunctionReturn = new LuaFunctionReturn(type, description);
                 return;
+            }
+
+            if (tag == "param")
+            {
+                // Example:
+                // -- @param #number x The input number
+                string moduleAndTypeName = lineParser.GetNextWord();
+                GetModuleName(moduleAndTypeName, out string moduleName);
+                string name = lineParser.GetNextWord();
+                lineParser.SkipWhitespace();
+                string description = lineParser.GetRest();
+                LuaModule module = GetLuaModule(moduleName);
+                LuaType type = GetLuaType(module, moduleAndTypeName);
+                LuaVariable parameter = new LuaVariable(name, type, description);
+                LuaFunctionParamBuffer.Add(parameter);
             }
         }
 
@@ -162,24 +183,17 @@ namespace LDCLib
             return lType;
         }
 
-        private static void SplitTypeName(string moduleAndTypeName, out string moduleName, out string typeName)
+        private static void GetModuleName(string moduleAndTypeName, out string moduleName)
         {
             if (moduleAndTypeName.Contains("#"))
             {
                 var split = moduleAndTypeName.Split('#');
                 moduleName = split[0];
-                typeName = split[1];
             }
             else
             {
                 moduleName = "";
-                typeName = moduleAndTypeName;
             }
-        }
-
-        public static Node<string> ParseTypeNodeTree(string data)
-        {
-            return new Node<string>("");
         }
     }
 }
