@@ -97,8 +97,23 @@ namespace LDCTest
             var function = type.Functions[0];
             Assert.AreEqual("foobar", function.Name);
             Assert.AreEqual(1, function.Parameters.Count);
-
             Assert.AreEqual(1, function.Parameters.Count);
+        }
+
+        [TestMethod]
+        public void ParseModule()
+        {
+            var parser = new Parser();
+            parser.ParseLine("-- @module MyModule");
+            Assert.IsTrue(parser.LuaModules.ContainsKey("MyModule"));
+            var module = parser.LuaModules["MyModule"];
+            Assert.AreEqual(0, module.LuaTypes.Count);
+            parser.ParseLine("");
+            parser.ParseLine("-- @type MyType");
+            Assert.IsTrue(module.LuaTypes.ContainsKey("#MyType"));
+            Assert.AreEqual(0, module.LuaFunctions.Count);
+            parser.ParseLine("function foobar()");
+            Assert.AreEqual(1, module.LuaFunctions.Count);
         }
     }
 }

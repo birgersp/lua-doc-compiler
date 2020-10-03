@@ -65,7 +65,8 @@ namespace LDCLib
                 if (parentLuaType != null)
                 {
                     parentLuaType.Functions.Add(function);
-                } else
+                }
+                else
                 {
                     CurrentModule.LuaFunctions.Add(function);
                 }
@@ -92,11 +93,20 @@ namespace LDCLib
 
             string tag = lineParser.GetNextWord();
 
+            if (tag == "module")
+            {
+                // Example:
+                // -- @module MyModule
+                string name = lineParser.GetNextWord();
+                CurrentModule = GetLuaModule(name);
+                return;
+            }
+
             if (tag == "type")
             {
                 // Example:
                 // -- @type MyType
-                string name = $"{CurrentModule.Name}#{lineParser.GetNextWord()}";
+                string name = $"#{lineParser.GetNextWord()}";
                 CurrentLuaType = GetLuaType(CurrentModule, name);
                 return;
             }
@@ -125,8 +135,8 @@ namespace LDCLib
                 var name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 var description = lineParser.GetRest();
-                LuaVariable lVariable = new LuaVariable(name, moduleAndTypeName, description);
-                CurrentLuaType.Fields.Add(lVariable);
+                LuaVariable variable = new LuaVariable(name, moduleAndTypeName, description);
+                CurrentLuaType.Fields.Add(variable);
                 return;
             }
 
@@ -179,8 +189,8 @@ namespace LDCLib
         {
             if (moduleAndTypeName.Contains("#"))
             {
-                var split = moduleAndTypeName.Split('#');
-                moduleName = split[0];
+                var index = moduleAndTypeName.IndexOf('#');
+                moduleName = moduleAndTypeName.Substring(0, index);
             }
             else
             {
