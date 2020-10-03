@@ -30,10 +30,10 @@ namespace LDCTest
             var parser = new Parser();
             parser.ParseLine("-- @type MyType");
             LuaType type = parser.CurrentLuaType;
-            Assert.IsTrue(type.SuperLuaType == null);
+            Assert.IsTrue(type.SuperTypeName == null);
             parser.ParseLine("-- @extends #SuperType");
-            Assert.IsTrue(type.SuperLuaType != null);
-            Assert.AreEqual("#SuperType", type.SuperLuaType.Name);
+            Assert.IsTrue(type.SuperTypeName != null);
+            Assert.AreEqual("#SuperType", type.SuperTypeName);
         }
 
         [TestMethod]
@@ -46,11 +46,9 @@ namespace LDCTest
             parser.ParseLine("-- @field #number x The X coordinate");
             Assert.AreEqual(1, type.Fields.Count);
             LuaVariable variable = type.Fields[0];
+            Assert.AreEqual("#number", variable.TypeName);
             Assert.AreEqual("x", variable.Name);
             Assert.AreEqual("The X coordinate", variable.Description);
-            LuaType numberType = variable.Type;
-            Assert.AreEqual("#number", numberType.Name);
-            Assert.AreEqual(1, type.Fields.Count);
             Assert.AreEqual(0, type.Functions.Count);
         }
 
@@ -76,13 +74,13 @@ namespace LDCTest
             // Function parameters
             Assert.AreEqual(1, function.Parameters.Count);
             var parameter = function.Parameters[0];
-            Assert.AreEqual("#number", parameter.Type.Name);
+            Assert.AreEqual("#number", parameter.TypeName);
             Assert.AreEqual("x", parameter.Name);
             Assert.AreEqual("The input number", parameter.Description);
 
             // Function return type
-            LuaFunctionReturn functionReturn = function.Return;
-            Assert.AreEqual("#MyType", functionReturn.Type.Name);
+            Assert.AreEqual("#MyType", function.ReturnType);
+            Assert.AreEqual("Some data", function.ReturnDescription);
         }
 
         [TestMethod]

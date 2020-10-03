@@ -10,7 +10,7 @@ namespace LDCLib
 {
     public class Parser
     {
-        private LuaFunctionReturn CurrentLuaFunctionReturn;
+        private string LFunRetTypeName, LFunRetDescription;
         public LuaType CurrentLuaType;
         public readonly Dictionary<string, LuaModule> LuaModules = new Dictionary<string, LuaModule>();
         private readonly List<LuaVariable> LuaFunctionParamBuffer = new List<LuaVariable>();
@@ -28,6 +28,8 @@ namespace LDCLib
             CurrentLuaType = null;
             LuaFunctionParamBuffer.Clear();
             DescriptionBuffer.Clear();
+            LFunRetTypeName = null;
+            LFunRetDescription = null;
         }
 
         public void NewDoc()
@@ -58,7 +60,7 @@ namespace LDCLib
                 {
                     functionName = fullName;
                 }
-                var function = new LuaFunction(functionName, DescriptionBuffer.ToString(), CurrentLuaFunctionReturn);
+                var function = new LuaFunction(functionName, DescriptionBuffer.ToString(), LFunRetTypeName, LFunRetDescription);
                 function.Parameters.AddRange(LuaFunctionParamBuffer);
                 if (parentLuaType != null)
                 {
@@ -108,9 +110,7 @@ namespace LDCLib
                     throw new Exception("Extends tag error: No type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
-                GetModuleName(moduleAndTypeName, out string moduleName);
-                LuaModule luaModule = GetLuaModule(moduleName);
-                CurrentLuaType.SuperLuaType = GetLuaType(luaModule, moduleAndTypeName);
+                CurrentLuaType.SuperTypeName = moduleAndTypeName;
             }
 
             if (tag == "field")
@@ -122,13 +122,10 @@ namespace LDCLib
                     throw new Exception("Field tag error: No parent type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
-                GetModuleName(moduleAndTypeName, out string moduleName);
-                LuaModule luaModule = GetLuaModule(moduleName);
-                LuaType type = GetLuaType(luaModule, moduleAndTypeName);
                 var name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 var description = lineParser.GetRest();
-                LuaVariable lVariable = new LuaVariable(name, type, description);
+                LuaVariable lVariable = new LuaVariable(name, moduleAndTypeName, description);
                 CurrentLuaType.Fields.Add(lVariable);
                 return;
             }
@@ -138,12 +135,10 @@ namespace LDCLib
                 // Example:
                 // -- @return #MyType Some data
                 string moduleAndTypeName = lineParser.GetNextWord();
-                GetModuleName(moduleAndTypeName, out string moduleName);
                 lineParser.SkipWhitespace();
                 string description = lineParser.GetRest();
-                LuaModule module = GetLuaModule(moduleName);
-                LuaType type = GetLuaType(module, moduleAndTypeName);
-                CurrentLuaFunctionReturn = new LuaFunctionReturn(type, description);
+                LFunRetTypeName = moduleAndTypeName;
+                LFunRetDescription = description;
                 return;
             }
 
@@ -152,13 +147,10 @@ namespace LDCLib
                 // Example:
                 // -- @param #number x The input number
                 string moduleAndTypeName = lineParser.GetNextWord();
-                GetModuleName(moduleAndTypeName, out string moduleName);
                 string name = lineParser.GetNextWord();
                 lineParser.SkipWhitespace();
                 string description = lineParser.GetRest();
-                LuaModule module = GetLuaModule(moduleName);
-                LuaType type = GetLuaType(module, moduleAndTypeName);
-                LuaVariable parameter = new LuaVariable(name, type, description);
+                LuaVariable parameter = new LuaVariable(name, moduleAndTypeName, description);
                 LuaFunctionParamBuffer.Add(parameter);
             }
         }

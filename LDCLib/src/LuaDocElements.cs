@@ -16,7 +16,7 @@ namespace LDCLib
 
     public class LuaType
     {
-        public LuaType SuperLuaType = null;
+        public string SuperTypeName = null;
         public readonly List<LuaVariable> Fields = new List<LuaVariable>();
         public readonly List<LuaFunction> Functions = new List<LuaFunction>();
         public readonly string Name;
@@ -29,14 +29,14 @@ namespace LDCLib
 
     public class LuaVariable
     {
-        public readonly LuaType Type;
+        public readonly string TypeName;
         public readonly string Name;
         public readonly string Description;
 
-        public LuaVariable(string name, LuaType type, string description)
+        public LuaVariable(string name, string typeName, string description)
         {
             Name = name;
-            Type = type;
+            TypeName = typeName;
             Description = description;
         }
     }
@@ -45,27 +45,16 @@ namespace LDCLib
     {
         public List<LuaVariable> Parameters = new List<LuaVariable>();
         public readonly string Name;
-        public readonly LuaFunctionReturn Return;
         public readonly string Description = "";
+        public readonly string ReturnType;
+        public readonly string ReturnDescription;
 
-        public LuaFunction(string name, string description, LuaFunctionReturn fReturn)
+        public LuaFunction(string name, string description, string returnType, string returnDescription)
         {
             Name = name;
             Description = description;
-            Return = fReturn;
+            ReturnType = returnType;
+            ReturnDescription = returnDescription;
         }
     }
-
-    public class LuaFunctionReturn
-    {
-        public readonly LuaType Type;
-        public readonly string Description;
-
-        public LuaFunctionReturn(LuaType type, string description)
-        {
-            Type = type;
-            Description = description;
-        }
-    }
-
 }
