@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -64,10 +65,9 @@ namespace LDCTest
 
             Assert.IsTrue(parser.LuaModules.ContainsKey(""));
             Assert.AreEqual(1, parser.LuaModules[""].LuaFunctions.Count);
-            Assert.IsTrue(parser.LuaModules[""].LuaFunctions.ContainsKey("foobar"));
 
             // Function header
-            LuaFunction function = parser.LuaModules[""].LuaFunctions["foobar"];
+            LuaFunction function = parser.LuaModules[""].LuaFunctions[0];
             Assert.AreEqual("foobar", function.Name);
 
             // Function description
@@ -83,6 +83,24 @@ namespace LDCTest
             // Function return type
             LuaFunctionReturn functionReturn = function.Return;
             Assert.AreEqual("#MyType", functionReturn.Type.Name);
+        }
+
+        [TestMethod]
+        public void ParseTypeFunction()
+        {
+            var parser = new Parser();
+            parser.ParseLine("-- @type MyType");
+            parser.ParseLine("");
+            parser.ParseLine("-- Some function");
+            parser.ParseLine("-- @param #MyType self");
+            parser.ParseLine("function MyType:foobar()");
+            var type = parser.LuaModules[""].LuaTypes["#MyType"];
+            Assert.AreEqual(1, type.Functions.Count);
+            var function = type.Functions[0];
+            Assert.AreEqual("foobar", function.Name);
+            Assert.AreEqual(1, function.Parameters.Count);
+
+            Assert.AreEqual(1, function.Parameters.Count);
         }
     }
 }

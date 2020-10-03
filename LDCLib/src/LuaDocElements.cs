@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace LDCLib
 {
@@ -10,7 +6,7 @@ namespace LDCLib
     {
         public readonly string Name;
         public readonly Dictionary<string, LuaType> LuaTypes = new Dictionary<string, LuaType>();
-        public readonly Dictionary<string, LuaFunction> LuaFunctions = new Dictionary<string, LuaFunction>();
+        public readonly List<LuaFunction> LuaFunctions = new List<LuaFunction>();
 
         public LuaModule(string name)
         {
