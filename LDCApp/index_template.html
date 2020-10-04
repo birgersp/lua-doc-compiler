@@ -1,0 +1,39 @@
+﻿<html>
+<head>
+    <style>
+        body {
+            overflow: hidden;
+        }
+
+        .menu {
+            height: 100%;
+            width: 200px;
+            float: left;
+            overflow: scroll;
+        }
+
+        .content {
+            margin-left: 200px;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+        }
+
+        .menu p {
+            margin: 0px;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <h3>Modules</h3>
+        @@TYPE_LIST@@
+    </div>
+    <div class="content">
+        <iframe name="iframe"></iframe>
+    </div>
+</body>
+</html>
