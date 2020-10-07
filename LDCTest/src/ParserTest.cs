@@ -44,12 +44,16 @@ namespace LDCTest
             LuaType type = parser.CurrentLuaType;
             Assert.AreEqual(0, type.Fields.Count);
             parser.ParseLine("-- @field #number x The X coordinate");
-            Assert.AreEqual(1, type.Fields.Count);
-            LuaVariable variable = type.Fields[0];
-            Assert.AreEqual("#number", variable.TypeName);
-            Assert.AreEqual("x", variable.Name);
-            Assert.AreEqual("The X coordinate", variable.Description);
+            parser.ParseLine("-- @field #list<#number> list");
+            Assert.AreEqual(2, type.Fields.Count);
+            LuaVariable field1 = type.Fields[0];
+            Assert.AreEqual("#number", field1.TypeName);
+            Assert.AreEqual("x", field1.Name);
+            Assert.AreEqual("The X coordinate", field1.Description);
             Assert.AreEqual(0, type.Functions.Count);
+            LuaVariable field2 = type.Fields[1];
+            Assert.AreEqual("#list<#number>", field2.TypeName);
+            Assert.AreEqual("list", field2.Name);
         }
 
         [TestMethod]
@@ -58,6 +62,7 @@ namespace LDCTest
             var parser = new Parser();
             parser.ParseLine("-- Some function");
             parser.ParseLine("-- @param #number x The input number");
+            parser.ParseLine("-- @param #list<#number> list");
             parser.ParseLine("-- @return #MyType Some data");
             parser.ParseLine("function foobar(x)");
 
@@ -72,11 +77,14 @@ namespace LDCTest
             Assert.AreEqual("Some function", function.Description);
 
             // Function parameters
-            Assert.AreEqual(1, function.Parameters.Count);
-            var parameter = function.Parameters[0];
-            Assert.AreEqual("#number", parameter.TypeName);
-            Assert.AreEqual("x", parameter.Name);
-            Assert.AreEqual("The input number", parameter.Description);
+            Assert.AreEqual(2, function.Parameters.Count);
+            var param1 = function.Parameters[0];
+            Assert.AreEqual("#number", param1.TypeName);
+            Assert.AreEqual("x", param1.Name);
+            Assert.AreEqual("The input number", param1.Description);
+            var param2 = function.Parameters[1];
+            Assert.AreEqual("#list<#number>", param2.TypeName);
+            Assert.AreEqual("list", param2.Name);
 
             // Function return type
             Assert.AreEqual("#MyType", function.ReturnType);
@@ -155,10 +163,11 @@ namespace LDCTest
         public void ParseModuleDescription()
         {
             var parser = new Parser();
-            parser.ParseLine("-- Module description");
+            parser.ParseLine("-- line 1");
+            parser.ParseLine("-- line 2");
             parser.ParseLine("-- @module MyModule");
             var module = parser.LuaModules["MyModule"];
-            Assert.AreEqual("Module description", module.Description);
+            Assert.AreEqual("line 1\nline 2", module.Description);
         }
     }
 }

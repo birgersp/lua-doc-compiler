@@ -206,18 +206,5 @@ namespace LDCLib
             }
             return lType;
         }
-
-        private static void GetModuleName(string moduleAndTypeName, out string moduleName)
-        {
-            if (moduleAndTypeName.Contains("#"))
-            {
-                var index = moduleAndTypeName.IndexOf('#');
-                moduleName = moduleAndTypeName.Substring(0, index);
-            }
-            else
-            {
-                moduleName = "";
-            }
-        }
     }
 }

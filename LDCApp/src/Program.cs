@@ -69,6 +69,37 @@ namespace LDCApp
             Log("Done");
         }
 
+        void WriteFunction(LuaType type,LuaFunction function, StringBuilder dest)
+        {
+            var id = $"{type.Name}:{function.Name}";
+            var inner = $"<a href=\"#{id}\">{function.Name}</a>\n";
+            inner += $"<p>{function.Description}</p>\n";
+            if (function.Parameters.Count > 1)
+            {
+                inner += $"<h4>Parameters</h4>\n";
+                inner += $"<ul>\n";
+                foreach (var param in function.Parameters)
+                {
+                    if (param.Name == "self")
+                    {
+                        continue;
+                    }
+                    inner += $"<li>{param.TypeName} {param.Name} - {param.Description}</li>\n";
+                }
+                inner += $"</ul>\n";
+            }
+            dest.Append($"<div id=\"{id}\">{inner}</div>\n");
+        }
+
+        void WriteType(LuaType type, StringBuilder dest)
+        {
+            dest.Append($"<h3>Type {type.Name}</h3>\n");
+            foreach (var function in type.Functions)
+            {
+                WriteFunction(type,function, dest);
+            }
+        }
+
         void WriteModule(LuaModule module)
         {
             string fileName;
@@ -80,21 +111,31 @@ namespace LDCApp
             {
                 fileName = $"{module.Name}.html";
             }
-            DocBuilder db = new DocBuilder();
-            db.Begin();
-            db.AddModuleHeader(module.Name);
-            db.AddMajorHeader("Types");
-            var tb = new TableBuilder();
-            tb.Begin();
+            StringBuilder data = new StringBuilder();
+            data.Append($@"
+<html><head></head><body>
+<h1>{module.Name}</h1>
+<p>{module.Description}</p>
+<h2>Types</h2>
+");
             foreach (var type in module.LuaTypes.Values)
             {
-                //tb.AddRow(type.Name, type.Description);
-                tb.AddRow(type.Name, "");
+                if (type.Name.Length == 0)
+                {
+                    continue;
+                }
+                data.Append($"<p>{type.Name}</p>\n");
             }
-            tb.Finish();
-            db.Add(tb.ToString());
-            db.Finish();
-            File.WriteAllText($"{OutDir}\\{fileName}", db.ToString());
+            foreach (var type in module.LuaTypes.Values)
+            {
+                if (type.Name.Length == 0)
+                {
+                    continue;
+                }
+                WriteType(type, data);
+            }
+            data.Append("</body></html>\n");
+            File.WriteAllText($"{OutDir}\\{fileName}", data.ToString());
         }
 
         void WriteToOutFiles()
