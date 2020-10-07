@@ -53,7 +53,7 @@ namespace LDCLib
                 if (fullName.Contains(":"))
                 {
                     var split = fullName.Split(':');
-                    parentLuaType = GetLuaType(CurrentModule, $"{CurrentModule.Name}#{split[0]}");
+                    parentLuaType = GetLuaType(CurrentModule, $"#{split[0]}");
                     functionName = split[1];
                 }
                 else
