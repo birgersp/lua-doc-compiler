@@ -1,4 +1,5 @@
-﻿using LDCLib;
+﻿using LDCApp.src;
+using LDCLib;
 using LDCLib.src;
 using System;
 using System.Collections.Generic;
@@ -69,34 +70,45 @@ namespace LDCApp
             Log("Done");
         }
 
-        void WriteFunction(LuaType type,LuaFunction function, StringBuilder dest)
+        void WriteFunction(LuaType type, LuaFunction function, HTMLBuilder dest)
         {
             var id = $"{type.Name}:{function.Name}";
-            var inner = $"<a href=\"#{id}\">{function.Name}</a>\n";
-            inner += $"<p>{function.Description}</p>\n";
+            dest.Open($"div id=\"{id}\"");
+            dest.Add("h4", $"a href=\"#{id}\"", function.Name);
+            dest.Add("p", function.Description);
             if (function.Parameters.Count > 1)
             {
-                inner += $"<h4>Parameters</h4>\n";
-                inner += $"<ul>\n";
+                dest.Add("h4", "Parameters");
+                dest.Open("ul");
                 foreach (var param in function.Parameters)
                 {
                     if (param.Name == "self")
                     {
                         continue;
                     }
-                    inner += $"<li>{param.TypeName} {param.Name} - {param.Description}</li>\n";
+                    dest.Add("li", $"{param.TypeName} {param.Name} - {param.Description}");
                 }
-                inner += $"</ul>\n";
+                dest.Close("ul");
             }
-            dest.Append($"<div id=\"{id}\">{inner}</div>\n");
+            if (function.ReturnType != null)
+            {
+                dest.Add("h4", "Return");
+                string returnLine = function.ReturnType;
+                if (function.ReturnDescription.Length > 0)
+                {
+                    returnLine += $" - {function.ReturnDescription}";
+                }
+                dest.Add("p", $"{returnLine}");
+            }
+            dest.Close("div");
         }
 
-        void WriteType(LuaType type, StringBuilder dest)
+        void WriteType(LuaType type, HTMLBuilder dest)
         {
-            dest.Append($"<h3>Type {type.Name}</h3>\n");
+            dest.Add("h3", $"Type {type.Name}");
             foreach (var function in type.Functions)
             {
-                WriteFunction(type,function, dest);
+                WriteFunction(type, function, dest);
             }
         }
 
@@ -111,20 +123,18 @@ namespace LDCApp
             {
                 fileName = $"{module.Name}.html";
             }
-            StringBuilder data = new StringBuilder();
-            data.Append($@"
-<html><head></head><body>
-<h1>{module.Name}</h1>
-<p>{module.Description}</p>
-<h2>Types</h2>
-");
+            var builder = new HTMLBuilder();
+            builder.Open("html", "head", "/head", "body");
+            builder.Add("h1", module.Name);
+            builder.Add("p", module.Description);
+            builder.Add("h2", "Types");
             foreach (var type in module.LuaTypes.Values)
             {
                 if (type.Name.Length == 0)
                 {
                     continue;
                 }
-                data.Append($"<p>{type.Name}</p>\n");
+                builder.Add("p", type.Name);
             }
             foreach (var type in module.LuaTypes.Values)
             {
@@ -132,10 +142,10 @@ namespace LDCApp
                 {
                     continue;
                 }
-                WriteType(type, data);
+                WriteType(type, builder);
             }
-            data.Append("</body></html>\n");
-            File.WriteAllText($"{OutDir}\\{fileName}", data.ToString());
+            builder.Close("body", "html");
+            File.WriteAllText($"{OutDir}\\{fileName}", builder.ToString());
         }
 
         void WriteToOutFiles()
