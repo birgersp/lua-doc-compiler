@@ -22,6 +22,18 @@ namespace LDCApp
             Console.WriteLine(obj);
         }
 
+        static string GetModuleHTMLFilename(LuaModule module)
+        {
+            if (module.Name == "")
+            {
+                return "root.html";
+            }
+            else
+            {
+                return $"{module.Name}.html";
+            }
+        }
+
         void ParseFile(string fileName)
         {
             foreach (var line in File.ReadLines(fileName))
@@ -64,6 +76,21 @@ namespace LDCApp
 
         void MakeIndexFile()
         {
+            var indexData = File.ReadAllText("index_template.html");
+            var menuBuilder = new HTMLBuilder();
+            foreach (var module in Parser.LuaModules.Values)
+            {
+                var moduleHtmlName = GetModuleHTMLFilename(module);
+                menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}' target='iframe'", module.Name);
+            }
+            indexData = indexData.Replace("@@MODULES@@", menuBuilder.ToString());
+            var module1HtmlName = "";
+            if (Parser.LuaModules.Count > 1)
+            {
+                module1HtmlName = GetModuleHTMLFilename(Parser.LuaModules.ElementAt(1).Value);
+            }
+            indexData = indexData.Replace("@@MODULE1@@", module1HtmlName);
+            File.WriteAllText($"{OutDir}\\index.html", indexData);
         }
 
         void Run(string[] args)
@@ -75,7 +102,8 @@ namespace LDCApp
             try
             {
                 File.Copy("modules.css", $"{OutDir}\\modules.css");
-            } catch(IOException e)
+            }
+            catch (IOException e)
             {
                 Log(e.Message);
             }
@@ -126,15 +154,7 @@ namespace LDCApp
 
         void WriteModule(LuaModule module)
         {
-            string fileName;
-            if (module.Name == "")
-            {
-                fileName = "root.html";
-            }
-            else
-            {
-                fileName = $"{module.Name}.html";
-            }
+            string fileName = GetModuleHTMLFilename(module);
             var builder = new HTMLBuilder();
             builder.Open("html", "head");
             builder.Add("link rel='stylesheet' href='modules.css'", "");

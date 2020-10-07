@@ -25,15 +25,25 @@
             margin: 0px;
             margin-bottom: 5px;
         }
+
+        a, a:link, a:visited {
+            text-decoration: none;
+            color:blue;
+        }
+
+        .modulelink {
+            margin-bottom: 0em;
+            margin-top: 0.2em;
+        }
     </style>
 </head>
 <body>
     <div class="menu">
-        <h3>Modules</h3>
-        @@TYPE_LIST@@
+        <h2>Modules</h2>
+        @@MODULES@@
     </div>
     <div class="content">
-        <iframe name="iframe"></iframe>
+        <iframe name="iframe" src="@@MODULE1@@"></iframe>
     </div>
 </body>
 </html>
