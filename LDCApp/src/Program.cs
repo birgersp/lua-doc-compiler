@@ -73,13 +73,13 @@ namespace LDCApp
         void WriteFunction(LuaType type, LuaFunction function, HTMLBuilder dest)
         {
             var id = $"{type.Name}:{function.Name}";
-            dest.Open($"div id=\"{id}\"");
-            dest.Add("h4", $"a href=\"#{id}\"", function.Name);
+            dest.Open($"div id='{id}'");
+            dest.Add("h4 class='functionheader'", $"a href='#{id}'", function.Name);
             dest.Add("p", function.Description);
             if (function.Parameters.Count > 1)
             {
-                dest.Add("h4", "Parameters");
-                dest.Open("ul");
+                dest.Add("h4 class='funcparamheader'", "Parameters");
+                dest.Open("ul class='funcparamlist'");
                 foreach (var param in function.Parameters)
                 {
                     if (param.Name == "self")
@@ -92,13 +92,13 @@ namespace LDCApp
             }
             if (function.ReturnType != null)
             {
-                dest.Add("h4", "Return");
+                dest.Add("h4 class='funcreturnheader'", "Return");
                 string returnLine = function.ReturnType;
                 if (function.ReturnDescription.Length > 0)
                 {
                     returnLine += $" - {function.ReturnDescription}";
                 }
-                dest.Add("p", $"{returnLine}");
+                dest.Add("ul", "li", $"{returnLine}");
             }
             dest.Close("div");
         }
