@@ -20,7 +20,7 @@ namespace LDCLib
 
         public Parser()
         {
-            LuaModules.Add("", new LuaModule(""));
+            LuaModules.Add("", new LuaModule("", ""));
             NewDoc();
         }
 
@@ -120,6 +120,7 @@ namespace LDCLib
                 // -- @module MyModule
                 string name = lineParser.GetNextWord();
                 CurrentModule = GetLuaModule(name);
+                FinishCurrent();
                 return;
             }
 
@@ -138,7 +139,7 @@ namespace LDCLib
                 // -- @extends #SuperType
                 if (CurrentLuaType == null)
                 {
-                    throw new Exception("Extends tag error: No type");
+                    throw new Exception("'@extends' tag error: No type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
                 CurrentLuaType.SuperTypeName = moduleAndTypeName;
@@ -150,7 +151,7 @@ namespace LDCLib
                 // -- @field #number x The X coordinate
                 if (CurrentLuaType == null)
                 {
-                    throw new Exception("Field tag error: No parent type");
+                    throw new Exception("'$field' tag error: No parent type");
                 }
                 string moduleAndTypeName = lineParser.GetNextWord();
                 var name = lineParser.GetNextWord();
@@ -190,7 +191,7 @@ namespace LDCLib
         {
             if (!LuaModules.TryGetValue(name, out LuaModule module))
             {
-                module = new LuaModule(name);
+                module = new LuaModule(name, DescriptionBuffer.ToString());
                 LuaModules.Add(name, module);
             }
             return module;

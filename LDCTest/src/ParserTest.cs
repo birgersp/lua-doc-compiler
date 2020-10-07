@@ -150,5 +150,15 @@ namespace LDCTest
             Assert.AreEqual(1, module.LuaTypes.Count);
             Assert.IsTrue(module.LuaTypes.ContainsKey("#MyType"));
         }
+
+        [TestMethod]
+        public void ParseModuleDescription()
+        {
+            var parser = new Parser();
+            parser.ParseLine("-- Module description");
+            parser.ParseLine("-- @module MyModule");
+            var module = parser.LuaModules["MyModule"];
+            Assert.AreEqual("Module description", module.Description);
+        }
     }
 }

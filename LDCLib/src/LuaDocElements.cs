@@ -5,12 +5,14 @@ namespace LDCLib
     public class LuaModule
     {
         public readonly string Name;
+        public readonly string Description;
         public readonly Dictionary<string, LuaType> LuaTypes = new Dictionary<string, LuaType>();
         public readonly List<LuaFunction> LuaFunctions = new List<LuaFunction>();
 
-        public LuaModule(string name)
+        public LuaModule(string name, string description)
         {
             Name = name;
+            Description = description;
         }
     }
 
