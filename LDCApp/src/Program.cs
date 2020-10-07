@@ -62,11 +62,23 @@ namespace LDCApp
             }
         }
 
+        void MakeIndexFile()
+        {
+        }
+
         void Run(string[] args)
         {
             ParseArgs(args);
             ParseInputFiles();
             WriteToOutFiles();
+            MakeIndexFile();
+            try
+            {
+                File.Copy("modules.css", $"{OutDir}\\modules.css");
+            } catch(IOException e)
+            {
+                Log(e.Message);
+            }
             Log("Done");
         }
 
@@ -124,7 +136,10 @@ namespace LDCApp
                 fileName = $"{module.Name}.html";
             }
             var builder = new HTMLBuilder();
-            builder.Open("html", "head", "/head", "body");
+            builder.Open("html", "head");
+            builder.Add("link rel='stylesheet' href='modules.css'", "");
+            builder.Close("head");
+            builder.Open("body");
             builder.Add("h1", module.Name);
             builder.Add("p", module.Description);
             builder.Add("h2", "Types");

@@ -1,0 +1,29 @@
+body {
+    margin-bottom: 4em;
+}
+
+a:visited, a:link, a:hover, a:active {
+    color: blue;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+.functionheader {
+    margin-bottom: 0em;
+}
+
+p {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
+.funcparamheader, .funcreturnheader {
+    margin-bottom: 0em;
+    margin-top: 0em;
+    font-size: 1em;
+}
+
+ul {
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
