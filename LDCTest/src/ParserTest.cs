@@ -97,7 +97,6 @@ namespace LDCTest
             var function = type.Functions[0];
             Assert.AreEqual("foobar", function.Name);
             Assert.AreEqual(1, function.Parameters.Count);
-            Assert.AreEqual(1, function.Parameters.Count);
         }
 
         [TestMethod]
@@ -114,6 +113,42 @@ namespace LDCTest
             Assert.AreEqual(0, module.LuaFunctions.Count);
             parser.ParseLine("function foobar()");
             Assert.AreEqual(1, module.LuaFunctions.Count);
+        }
+
+        [TestMethod]
+        public void ParseModuleAndTypeAndFunction()
+        {
+            var parser = new Parser();
+            parser.ParseLine("-- @module MyModule");
+            parser.ParseLine("-- @type MyType");
+            parser.ParseLine("");
+            parser.ParseLine("-- Some function");
+            parser.ParseLine("-- @param #MyType self");
+            parser.ParseLine("function MyType:foobar()");
+            var type = parser.LuaModules["MyModule"].LuaTypes["#MyType"];
+            Assert.AreEqual(1, type.Functions.Count);
+            var function = type.Functions[0];
+            Assert.AreEqual("foobar", function.Name);
+            Assert.AreEqual(1, function.Parameters.Count);
+            var parameter = function.Parameters[0];
+            Assert.AreEqual("#MyType", parameter.TypeName);
+        }
+
+        [TestMethod]
+        public void ParseTypeAlias()
+        {
+            var parser = new Parser();
+            parser.ParseLine("-- @module MyModule");
+            parser.ParseLine("-- @type MyType");
+            parser.ParseLine("mm_MyType = someMethod()");
+            parser.ParseLine("");
+            parser.ParseLine("-- Some function");
+            parser.ParseLine("-- @param #MyType self");
+            parser.ParseLine("function mm_MyType:foobar()");
+            Assert.AreEqual(2, parser.LuaModules.Count);
+            var module = parser.LuaModules["MyModule"];
+            Assert.AreEqual(1, module.LuaTypes.Count);
+            Assert.IsTrue(module.LuaTypes.ContainsKey("#MyType"));
         }
     }
 }

@@ -16,6 +16,7 @@ namespace LDCLib
         private readonly List<LuaVariable> LuaFunctionParamBuffer = new List<LuaVariable>();
         public LuaModule CurrentModule;
         private readonly StringBuilder DescriptionBuffer = new StringBuilder();
+        private readonly Dictionary<string, string> TypeAliases = new Dictionary<string, string>();
 
         public Parser()
         {
@@ -38,6 +39,20 @@ namespace LDCLib
             CurrentModule = LuaModules[""];
         }
 
+        public void TryParseAsTypeAlias(string line)
+        {
+            if (CurrentLuaType == null)
+            {
+                return;
+            }
+            var varName = Util.Extract(line, "^(.*?)=").Trim();
+            if (varName.Length == 0)
+            {
+                return;
+            }
+            TypeAliases.Add(varName, CurrentLuaType.Name);
+        }
+
         public void ParseLine(string line)
         {
             var lineParser = new LineParser(line);
@@ -53,7 +68,12 @@ namespace LDCLib
                 if (fullName.Contains(":"))
                 {
                     var split = fullName.Split(':');
-                    parentLuaType = GetLuaType(CurrentModule, $"#{split[0]}");
+                    var preSplit = split[0];
+                    if (!TypeAliases.TryGetValue(preSplit, out string typeName))
+                    {
+                        typeName = $"#{preSplit}";
+                    }
+                    parentLuaType = GetLuaType(CurrentModule, typeName);
                     functionName = split[1];
                 }
                 else
@@ -76,6 +96,7 @@ namespace LDCLib
 
             if (!lineParser.MatchNext("--"))
             {
+                TryParseAsTypeAlias(line);
                 FinishCurrent();
                 return;
             }
