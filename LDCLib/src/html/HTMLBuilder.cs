@@ -20,14 +20,16 @@ namespace LDCApp.src
 
         public void AddLiteral(string text)
         {
-            data.Append(ToLiteral(text));
+            var translated = ToLiteral(text);
+            data.Append(translated);
         }
 
         public void Add(params string[] entries)
         {
             if (entries.Length == 1)
             {
-                data.Append(entries[0]);
+                AddLiteral(entries[0]);
+                data.Append("\n");
                 return;
             }
             if (entries.Length > 1)
@@ -38,11 +40,13 @@ namespace LDCApp.src
                     Open(entries[index++]);
                 }
                 AddLiteral(entries.Last());
+                index--;
                 while(index >= 0)
                 {
                     var tag = Regex.Replace(entries[index--], " .*", "");
                     Close(tag);
                 }
+                data.Append("\n");
                 return;
             }
         }

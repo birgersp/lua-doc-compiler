@@ -104,9 +104,12 @@ namespace LDCApp
         {
             var id = $"{prefix}{function.Name}";
             dest.Open($"div id='{id}'");
-            dest.Add("hr", "");
+            dest.Open("hr");
             dest.Add("h4 class='functionheader'", $"a href='#{id}'", $"{prefix}{function.Name}");
-            dest.Add("p", function.Description);
+            if (function.Description.Length > 0)
+            {
+                dest.Add("p", function.Description);
+            }
             if (function.Parameters.Count > 1)
             {
                 dest.Add("h4 class='funcparamheader'", "Parameters");
@@ -146,7 +149,10 @@ namespace LDCApp
         void WriteModule(LuaModule module, HTMLBuilder builder)
         {
             builder.Add("h1", module.Name);
-            builder.Add("p", module.Description);
+            if (module.Description.Length > 0)
+            {
+                builder.Add("p", module.Description);
+            }
             builder.Add("h2", "Types");
             foreach (var type in module.LuaTypes.Values)
             {
