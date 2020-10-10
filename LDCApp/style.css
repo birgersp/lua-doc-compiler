@@ -1,14 +1,29 @@
-body {
-    margin-bottom: 4em;
-}
-
 a:visited, a:link, a:hover, a:active {
     color: blue;
     font-weight: bold;
     text-decoration: none;
 }
 
+hr {
+    margin-top: 1em;
+    margin-bottom: 1em;
+}
+
+.menu {
+    float: left;
+    width: 200px;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.content {
+    height: 100%;
+    overflow-y: scroll;
+    padding-left: 0.5em;
+}
+
 .functionheader {
+    margin-top: 0em;
     margin-bottom: 0em;
 }
 

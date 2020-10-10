@@ -15,6 +15,7 @@ namespace LDCApp
     {
         string InDir = ".";
         string OutDir = "doc";
+        bool OverwriteStylesheet = false;
         readonly Parser Parser = new Parser();
 
         static void Log(object obj)
@@ -53,6 +54,10 @@ namespace LDCApp
             {
                 OutDir = str;
             });
+            argParser.AddAlternative("overwritecss", (str) =>
+            {
+                OverwriteStylesheet = Util.ParseBoolString(str);
+            });
             foreach (var arg in args)
             {
                 argParser.Parse(arg);
@@ -74,34 +79,14 @@ namespace LDCApp
             }
         }
 
-        void MakeIndexFile()
-        {
-            var indexData = File.ReadAllText("index_template.html");
-            var menuBuilder = new HTMLBuilder();
-            foreach (var module in Parser.LuaModules.Values)
-            {
-                var moduleHtmlName = GetModuleHTMLFilename(module);
-                menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}' target='iframe'", module.Name);
-            }
-            indexData = indexData.Replace("@@MODULES@@", menuBuilder.ToString());
-            var module1HtmlName = "";
-            if (Parser.LuaModules.Count > 1)
-            {
-                module1HtmlName = GetModuleHTMLFilename(Parser.LuaModules.ElementAt(1).Value);
-            }
-            indexData = indexData.Replace("@@MODULE1@@", module1HtmlName);
-            File.WriteAllText($"{OutDir}\\index.html", indexData);
-        }
-
         void Run(string[] args)
         {
             ParseArgs(args);
             ParseInputFiles();
             WriteToOutFiles();
-            MakeIndexFile();
             try
             {
-                File.Copy("modules.css", $"{OutDir}\\modules.css");
+                File.Copy("style.css", $"{OutDir}\\style.css", OverwriteStylesheet);
             }
             catch (IOException e)
             {
@@ -114,7 +99,8 @@ namespace LDCApp
         {
             var id = $"{type.Name}:{function.Name}";
             dest.Open($"div id='{id}'");
-            dest.Add("h4 class='functionheader'", $"a href='#{id}'", function.Name);
+            dest.Add("hr", "");
+            dest.Add("h4 class='functionheader'", $"a href='#{id}'", $"{type.Name}:{function.Name}");
             dest.Add("p", function.Description);
             if (function.Parameters.Count > 1)
             {
@@ -152,14 +138,8 @@ namespace LDCApp
             }
         }
 
-        void WriteModule(LuaModule module)
+        void WriteModule(LuaModule module, HTMLBuilder builder)
         {
-            string fileName = GetModuleHTMLFilename(module);
-            var builder = new HTMLBuilder();
-            builder.Open("html", "head");
-            builder.Add("link rel='stylesheet' href='modules.css'", "");
-            builder.Close("head");
-            builder.Open("body");
             builder.Add("h1", module.Name);
             builder.Add("p", module.Description);
             builder.Add("h2", "Types");
@@ -179,16 +159,26 @@ namespace LDCApp
                 }
                 WriteType(type, builder);
             }
-            builder.Close("body", "html");
-            File.WriteAllText($"{OutDir}\\{fileName}", builder.ToString());
         }
 
         void WriteToOutFiles()
         {
+            var menuBuilder = new HTMLBuilder();
+            foreach (var module in Parser.LuaModules.Values)
+            {
+                var moduleHtmlName = GetModuleHTMLFilename(module);
+                menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}'", module.Name);
+            }
+            var templateData = File.ReadAllText("template.html");
+            templateData = templateData.Replace("@@MODULES@@", menuBuilder.ToString());
             Directory.CreateDirectory(OutDir);
             foreach (var module in Parser.LuaModules.Values)
             {
-                WriteModule(module);
+                string fileName = GetModuleHTMLFilename(module);
+                var builder = new HTMLBuilder();
+                WriteModule(module, builder);
+                var contentData = templateData.Replace("@@CONTENT@@", builder.ToString());
+                File.WriteAllText($"{OutDir}\\{fileName}", contentData.ToString());
             }
         }
 
