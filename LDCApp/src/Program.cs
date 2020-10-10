@@ -13,10 +13,10 @@ namespace LDCApp
 {
     class Program
     {
-        string InDir = ".";
-        string OutDir = "doc";
-        bool OverwriteStylesheet = false;
-        readonly Parser Parser = new Parser();
+        static bool ModuleHasContent(LuaModule module)
+        {
+            return module.LuaFunctions.Count > 0 || module.LuaTypes.Count > 0;
+        }
 
         static void Log(object obj)
         {
@@ -34,6 +34,11 @@ namespace LDCApp
                 return $"{module.Name}.html";
             }
         }
+
+        string InDir = ".";
+        string OutDir = "doc";
+        bool OverwriteStylesheet = false;
+        readonly Parser Parser = new Parser();
 
         void ParseFile(string fileName)
         {
@@ -95,12 +100,12 @@ namespace LDCApp
             Log("Done");
         }
 
-        void WriteFunction(LuaType type, LuaFunction function, HTMLBuilder dest)
+        void WriteFunction(LuaFunction function, HTMLBuilder dest, string prefix = "")
         {
-            var id = $"{type.Name}:{function.Name}";
+            var id = $"{prefix}{function.Name}";
             dest.Open($"div id='{id}'");
             dest.Add("hr", "");
-            dest.Add("h4 class='functionheader'", $"a href='#{id}'", $"{type.Name}:{function.Name}");
+            dest.Add("h4 class='functionheader'", $"a href='#{id}'", $"{prefix}{function.Name}");
             dest.Add("p", function.Description);
             if (function.Parameters.Count > 1)
             {
@@ -131,10 +136,10 @@ namespace LDCApp
 
         void WriteType(LuaType type, HTMLBuilder dest)
         {
-            dest.Add("h3", $"Type {type.Name}");
+            dest.Add("h3 class='typeheader'", $"Type {type.Name}");
             foreach (var function in type.Functions)
             {
-                WriteFunction(type, function, dest);
+                WriteFunction(function, dest, $"{type.Name}:");
             }
         }
 
@@ -145,15 +150,21 @@ namespace LDCApp
             builder.Add("h2", "Types");
             foreach (var type in module.LuaTypes.Values)
             {
-                if (type.Name.Length == 0)
+                if (type.Name.Length == 0 ||
+                    (type.Fields.Count == 0 && type.Functions.Count == 0))
                 {
                     continue;
                 }
                 builder.Add("p", type.Name);
             }
+            foreach (var function in module.LuaFunctions)
+            {
+                WriteFunction(function, builder);
+            }
             foreach (var type in module.LuaTypes.Values)
             {
-                if (type.Name.Length == 0)
+                if (type.Name.Length == 0 ||
+                    (type.Fields.Count == 0 && type.Functions.Count == 0))
                 {
                     continue;
                 }
@@ -161,19 +172,32 @@ namespace LDCApp
             }
         }
 
-        void WriteToOutFiles()
+        string GetTemplateWithMenu()
         {
             var menuBuilder = new HTMLBuilder();
             foreach (var module in Parser.LuaModules.Values)
             {
+                if (!ModuleHasContent(module))
+                {
+                    continue;
+                }
                 var moduleHtmlName = GetModuleHTMLFilename(module);
                 menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}'", module.Name);
             }
             var templateData = File.ReadAllText("template.html");
-            templateData = templateData.Replace("@@MODULES@@", menuBuilder.ToString());
+            return templateData.Replace("@@MODULES@@", menuBuilder.ToString());
+        }
+
+        void WriteToOutFiles()
+        {
+            var templateData = GetTemplateWithMenu();
             Directory.CreateDirectory(OutDir);
             foreach (var module in Parser.LuaModules.Values)
             {
+                if (!ModuleHasContent(module))
+                {
+                    continue;
+                }
                 string fileName = GetModuleHTMLFilename(module);
                 var builder = new HTMLBuilder();
                 WriteModule(module, builder);

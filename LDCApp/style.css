@@ -22,6 +22,10 @@ hr {
     padding-left: 0.5em;
 }
 
+.typeheader {
+    margin-top: 2em;
+}
+
 .functionheader {
     margin-top: 0em;
     margin-bottom: 0em;
