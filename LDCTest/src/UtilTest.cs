@@ -20,5 +20,15 @@ namespace LDC
             Assert.AreEqual("f123F1", Util.Extract("f123F1#list<#number>", "(^[a-z|A-Z|0-9]{1,}?)#"));
             Assert.AreEqual("list<#number>", Util.Extract("#list<#number>", "^.*?#(.*)"));
         }
+
+        [TestMethod]
+        public void SortAlphabetically()
+        {
+            string[] strings = { "b", "a", "c" };
+            Util.SortAlphabetically(strings);
+            Assert.AreEqual("a", strings[0]);
+            Assert.AreEqual("b", strings[1]);
+            Assert.AreEqual("c", strings[2]);
+        }
     }
 }

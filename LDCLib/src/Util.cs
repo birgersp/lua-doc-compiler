@@ -31,5 +31,10 @@ namespace LDC
         {
             Console.WriteLine(obj);
         }
+
+        public static void SortAlphabetically(string[] strings)
+        {
+            Array.Sort(strings, (s1, s2) => String.Compare(s1, s2));
+        }
     }
 }
