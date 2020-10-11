@@ -157,10 +157,10 @@ namespace LDC
 
             html.Add($"h3 class='typeheader' id='{type.Name}'", $"Type {type.Name}");
             var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
-            WriteFunctionTable(functions.Values, html, $"{htmlDocName}#{type.Name}:");
+            WriteFunctionTable(functions.Values, html, $"{htmlDocName}#{type.Name}.");
             foreach (var function in functions.Values)
             {
-                WriteFunction(function, html, $"{type.Name}:{function.Name}", htmlDocName);
+                WriteFunction(function, html, $"{type.Name}.{function.Name}", htmlDocName);
             }
         }
 
