@@ -29,6 +29,11 @@ namespace LDC
             }
         }
 
+        static string GetTypeFunctionLink(LuaModule module, LuaType type, LuaFunction function)
+        {
+            return $"{GetModuleHTMLFilename(module)}#{type.Name}:{function.Name}";
+        }
+
         public string InDir = ".";
         public string OutDir = "doc";
         public bool OverwriteStylesheet = false;
@@ -137,15 +142,16 @@ namespace LDC
             var functions = Util.ArrayToSortedDict(module.LuaFunctions, f => f.Name);
             foreach (var function in functions.Values)
             {
-                WriteFunction(function, html);
+                var link = $"{GetModuleHTMLFilename(module)}#{function.Name}";
+                WriteFunction(function, html, function.Name, link);
             }
             foreach (var type in includedTypes.Values)
             {
-                WriteType(type, html);
+                WriteType(module, type, html);
             }
         }
 
-        void WriteType(LuaType type, HtmlBuilder html)
+        void WriteType(LuaModule module, LuaType type, HtmlBuilder html)
         {
             html.Add("h3 class='typeheader'", $"Type {type.Name}");
             var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
@@ -162,16 +168,15 @@ namespace LDC
 
             foreach (var function in functions.Values)
             {
-                WriteFunction(function, html, $"{type.Name}:");
+                WriteFunction(function, html, $"{type.Name}:{function.Name}", GetTypeFunctionLink(module, type, function));
             }
         }
 
-        void WriteFunction(LuaFunction function, HtmlBuilder html, string prefix = "")
+        void WriteFunction(LuaFunction function, HtmlBuilder html, string name, string link)
         {
-            var id = $"{prefix}{function.Name}";
-            html.Open($"div id='{id}'");
+            html.Open($"div id='{name}'");
             html.Open("hr");
-            html.Add("h4 class='functionheader'", $"a href='#{id}'", $"{prefix}{function.Name}");
+            html.Add("h4 class='functionheader'", $"a href='{link}'", name);
             if (function.Description.Length > 0)
             {
                 html.Add("p", function.Description);
