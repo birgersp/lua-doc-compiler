@@ -36,5 +36,25 @@ namespace LDC
         {
             Array.Sort(strings, (s1, s2) => String.Compare(s1, s2));
         }
+
+        public static SortedDictionary<string, T> ArrayToSortedDict<T>(IEnumerable<T> items, Func<T, string> extractor)
+        {
+            var result = new SortedDictionary<string, T>();
+            foreach (var item in items)
+            {
+                result.Add(extractor(item), item);
+            }
+            return result;
+        }
+
+        public static SortedList<string, T> ArrayToSorted<T>(IEnumerable<T> items, Func<T, string> extractor)
+        {
+            var result = new SortedList<string, T>();
+            foreach (var item in items)
+            {
+                result.Add(extractor(item), item);
+            }
+            return result;
+        }
     }
 }

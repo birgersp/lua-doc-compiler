@@ -1,6 +1,7 @@
 ﻿using LDC;
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -97,7 +98,7 @@ namespace LDC
         string GetTemplateWithMenu()
         {
             var menuBuilder = new HtmlBuilder();
-            foreach (var module in IncludedModules.Values )
+            foreach (var module in IncludedModules.Values)
             {
                 var moduleHtmlName = GetModuleHTMLFilename(module);
                 menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}'", module.Name);
@@ -113,7 +114,7 @@ namespace LDC
             {
                 html.Add("p", module.Description);
             }
-            var hasAnyValidTypes = false;
+            SortedDictionary<string, LuaType> includedTypes = new SortedDictionary<string, LuaType>();
             foreach (var type in module.LuaTypes.Values)
             {
                 if (type.Name.Length == 0 ||
@@ -121,24 +122,25 @@ namespace LDC
                 {
                     continue;
                 }
-                if (!hasAnyValidTypes)
-                {
-                    html.Add("h2", "Types");
-                    hasAnyValidTypes = true;
-                }
-                html.Add("p", type.Name);
+                includedTypes.Add(type.Name, type);
             }
-            foreach (var function in module.LuaFunctions)
+            if (includedTypes.Count > 0)
+            {
+                html.Add("h2", "Types");
+                html.Open("ul");
+                foreach (var type in includedTypes.Values)
+                {
+                    html.Add("li", type.Name);
+                }
+                html.Close("ul");
+            }
+            var functions = Util.ArrayToSortedDict(module.LuaFunctions, f => f.Name);
+            foreach (var function in functions.Values)
             {
                 WriteFunction(function, html);
             }
-            foreach (var type in module.LuaTypes.Values)
+            foreach (var type in includedTypes.Values)
             {
-                if (type.Name.Length == 0 ||
-                    (type.Fields.Count == 0 && type.Functions.Count == 0))
-                {
-                    continue;
-                }
                 WriteType(type, html);
             }
         }
@@ -146,7 +148,8 @@ namespace LDC
         void WriteType(LuaType type, HtmlBuilder html)
         {
             html.Add("h3 class='typeheader'", $"Type {type.Name}");
-            foreach (var function in type.Functions)
+            var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
+            foreach (var function in functions.Values)
             {
                 WriteFunction(function, html, $"{type.Name}:");
             }
