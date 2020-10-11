@@ -32,6 +32,7 @@ namespace LDC
         public string OutDir = "doc";
         public bool OverwriteStylesheet = false;
         readonly Parser Parser = new Parser();
+        readonly SortedDictionary<string, LuaModule> IncludedModules = new SortedDictionary<string, LuaModule>();
 
         public void Execute()
         {
@@ -73,14 +74,18 @@ namespace LDC
 
         void WriteToOutFiles()
         {
-            var templateData = GetTemplateWithMenu();
-            Directory.CreateDirectory(OutDir);
             foreach (var module in Parser.LuaModules.Values)
             {
                 if (!ModuleHasContent(module))
                 {
                     continue;
                 }
+                IncludedModules.Add(module.Name, module);
+            }
+            var templateData = GetTemplateWithMenu();
+            Directory.CreateDirectory(OutDir);
+            foreach (var module in IncludedModules.Values)
+            {
                 string fileName = GetModuleHTMLFilename(module);
                 var builder = new HtmlBuilder();
                 WriteModule(module, builder);
@@ -92,12 +97,8 @@ namespace LDC
         string GetTemplateWithMenu()
         {
             var menuBuilder = new HtmlBuilder();
-            foreach (var module in Parser.LuaModules.Values)
+            foreach (var module in IncludedModules.Values )
             {
-                if (!ModuleHasContent(module))
-                {
-                    continue;
-                }
                 var moduleHtmlName = GetModuleHTMLFilename(module);
                 menuBuilder.Add("h3 class='modulelink'", $"a href='{moduleHtmlName}'", module.Name);
             }
