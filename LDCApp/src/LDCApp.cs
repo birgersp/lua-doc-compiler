@@ -29,11 +29,6 @@ namespace LDC
             }
         }
 
-        static string GetTypeFunctionLink(LuaModule module, LuaType type, LuaFunction function)
-        {
-            return $"{GetModuleHTMLFilename(module)}#{type.Name}:{function.Name}";
-        }
-
         public string InDir = ".";
         public string OutDir = "doc";
         public bool OverwriteStylesheet = false;
@@ -142,8 +137,7 @@ namespace LDC
             var functions = Util.ArrayToSortedDict(module.LuaFunctions, f => f.Name);
             foreach (var function in functions.Values)
             {
-                var link = $"{GetModuleHTMLFilename(module)}#{function.Name}";
-                WriteFunction(function, html, function.Name, link);
+                WriteFunction(function, html, function.Name, GetModuleHTMLFilename(module));
             }
             foreach (var type in includedTypes.Values)
             {
@@ -153,14 +147,17 @@ namespace LDC
 
         void WriteType(LuaModule module, LuaType type, HtmlBuilder html)
         {
+            var htmlDocName = GetModuleHTMLFilename(module);
+
             html.Add("h3 class='typeheader'", $"Type {type.Name}");
             var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
 
             html.Open("table", "tbody");
             foreach (var function in functions.Values)
             {
+                var link = $"{htmlDocName}#{type.Name}:{function.Name}";
                 html.Open("tr");
-                html.Add("td", "p class='cell'", function.Name);
+                html.Add("td", "p class='cell'", $"a href='{link}'", function.Name);
                 html.Add("td", "p class='cell'", function.Description);
                 html.Close("tr");
             }
@@ -168,15 +165,15 @@ namespace LDC
 
             foreach (var function in functions.Values)
             {
-                WriteFunction(function, html, $"{type.Name}:{function.Name}", GetTypeFunctionLink(module, type, function));
+                WriteFunction(function, html, $"{type.Name}:{function.Name}", htmlDocName);
             }
         }
 
-        void WriteFunction(LuaFunction function, HtmlBuilder html, string name, string link)
+        void WriteFunction(LuaFunction function, HtmlBuilder html, string name, string htmlDocName)
         {
             html.Open($"div id='{name}'");
             html.Open("hr");
-            html.Add("h4 class='functionheader'", $"a href='{link}'", name);
+            html.Add("h4 class='functionheader'", $"a href='{htmlDocName}#{name}'", name);
             if (function.Description.Length > 0)
             {
                 html.Add("p", function.Description);
