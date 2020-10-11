@@ -8,11 +8,11 @@ namespace LDCLib.src
 {
     public class ArgParser
     {
-        Dictionary<string, Action<string>> callbacks = new Dictionary<string, Action<string>>();
+        readonly Dictionary<string, Action<string>> Callbacks = new Dictionary<string, Action<string>>();
 
         public void AddAlternative(string key, Action<string> callback)
         {
-            callbacks.Add(key, callback);
+            Callbacks.Add(key, callback);
         }
 
         public void AddAlternative(string key, Action callback)
@@ -38,7 +38,7 @@ namespace LDCLib.src
                 key = argument.Substring(0, delimiterIndex);
                 value = argument.Substring(delimiterIndex + 1);
             }
-            callbacks[key](value);
+            Callbacks[key](value);
         }
     }
 }

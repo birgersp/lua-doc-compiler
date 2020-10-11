@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace LDCApp
 {
-    class Program
+    class Main
     {
         static bool ModuleHasContent(LuaModule module)
         {
@@ -219,7 +219,7 @@ namespace LDCApp
 
         static void Main(string[] args)
         {
-            Program p = new Program();
+            Main p = new Main();
             p.Run(args);
         }
     }
