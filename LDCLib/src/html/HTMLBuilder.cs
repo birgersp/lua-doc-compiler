@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace LDCApp.src
 {
-    public class HTMLBuilder
+    public class HtmlBuilder
     {
         readonly StringBuilder data = new StringBuilder();
 

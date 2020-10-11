@@ -100,7 +100,7 @@ namespace LDCApp
             Log("Done");
         }
 
-        void WriteFunction(LuaFunction function, HTMLBuilder dest, string prefix = "")
+        void WriteFunction(LuaFunction function, HtmlBuilder dest, string prefix = "")
         {
             var id = $"{prefix}{function.Name}";
             dest.Open($"div id='{id}'");
@@ -137,7 +137,7 @@ namespace LDCApp
             dest.Close("div");
         }
 
-        void WriteType(LuaType type, HTMLBuilder dest)
+        void WriteType(LuaType type, HtmlBuilder dest)
         {
             dest.Add("h3 class='typeheader'", $"Type {type.Name}");
             foreach (var function in type.Functions)
@@ -146,7 +146,7 @@ namespace LDCApp
             }
         }
 
-        void WriteModule(LuaModule module, HTMLBuilder builder)
+        void WriteModule(LuaModule module, HtmlBuilder builder)
         {
             builder.Add("h1", module.Name);
             if (module.Description.Length > 0)
@@ -180,7 +180,7 @@ namespace LDCApp
 
         string GetTemplateWithMenu()
         {
-            var menuBuilder = new HTMLBuilder();
+            var menuBuilder = new HtmlBuilder();
             foreach (var module in Parser.LuaModules.Values)
             {
                 if (!ModuleHasContent(module))
@@ -205,7 +205,7 @@ namespace LDCApp
                     continue;
                 }
                 string fileName = GetModuleHTMLFilename(module);
-                var builder = new HTMLBuilder();
+                var builder = new HtmlBuilder();
                 WriteModule(module, builder);
                 var contentData = templateData.Replace("@@CONTENT@@", builder.ToString());
                 File.WriteAllText($"{OutDir}\\{fileName}", contentData.ToString());

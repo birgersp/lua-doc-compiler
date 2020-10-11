@@ -42,7 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="src\ArgParser.cs" />
-    <Compile Include="src\html\HTMLBuilder.cs" />
+    <Compile Include="src\html\HtmlBuilder.cs" />
     <Compile Include="src\LineParser.cs" />
     <Compile Include="src\Node.cs" />
     <Compile Include="src\Parser.cs" />
