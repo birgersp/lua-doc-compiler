@@ -11,7 +11,7 @@ namespace LDC
     public class UtilTest
     {
         [TestMethod]
-        public void TestParseLType()
+        public void Extract()
         {
             Assert.AreEqual("", Util.Extract("foo(bar)", "<(.*)>"));
             Assert.AreEqual("bar", Util.Extract("foo<bar>", "<(.*)>"));
