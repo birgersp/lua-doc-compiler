@@ -1,6 +1,4 @@
-﻿using LDCApp.src;
-using LDCLib;
-using LDCLib.src;
+﻿using LDC;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,18 +7,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace LDCApp
+namespace LDC
 {
-    class Main
+    public class LDCApp
     {
         static bool ModuleHasContent(LuaModule module)
         {
             return module.LuaFunctions.Count > 0 || module.LuaTypes.Count > 0;
-        }
-
-        static void Log(object obj)
-        {
-            Console.WriteLine(obj);
         }
 
         static string GetModuleHTMLFilename(LuaModule module)
@@ -35,38 +28,24 @@ namespace LDCApp
             }
         }
 
-        string InDir = ".";
-        string OutDir = "doc";
-        bool OverwriteStylesheet = false;
+        public string InDir = ".";
+        public string OutDir = "doc";
+        public bool OverwriteStylesheet = false;
         readonly Parser Parser = new Parser();
 
-        void ParseFile(string fileName)
+        public void Execute()
         {
-            foreach (var line in File.ReadLines(fileName))
+            ParseInputFiles();
+            WriteToOutFiles();
+            try
             {
-                Parser.ParseLine(line);
+                File.Copy("style.css", $"{OutDir}\\style.css", OverwriteStylesheet);
             }
-        }
-
-        void ParseArgs(string[] args)
-        {
-            var argParser = new ArgParser();
-            argParser.AddAlternative("inDir", (str) =>
+            catch (IOException e)
             {
-                InDir = str;
-            });
-            argParser.AddAlternative("outDir", (str) =>
-            {
-                OutDir = str;
-            });
-            argParser.AddAlternative("overwritecss", (str) =>
-            {
-                OverwriteStylesheet = Util.ParseBoolString(str);
-            });
-            foreach (var arg in args)
-            {
-                argParser.Parse(arg);
+                Util.Log(e.Message);
             }
+            Util.Log("Done");
         }
 
         void ParseInputFiles()
@@ -79,25 +58,17 @@ namespace LDCApp
                 {
                     continue;
                 }
-                Log($"Reading file: {file}");
+                Util.Log($"Reading file: {file}");
                 ParseFile(file);
             }
         }
 
-        void Run(string[] args)
+        void ParseFile(string fileName)
         {
-            ParseArgs(args);
-            ParseInputFiles();
-            WriteToOutFiles();
-            try
+            foreach (var line in File.ReadLines(fileName))
             {
-                File.Copy("style.css", $"{OutDir}\\style.css", OverwriteStylesheet);
+                Parser.ParseLine(line);
             }
-            catch (IOException e)
-            {
-                Log(e.Message);
-            }
-            Log("Done");
         }
 
         void WriteFunction(LuaFunction function, HtmlBuilder dest, string prefix = "")
@@ -215,12 +186,6 @@ namespace LDCApp
                 var contentData = templateData.Replace("@@CONTENT@@", builder.ToString());
                 File.WriteAllText($"{OutDir}\\{fileName}", contentData.ToString());
             }
-        }
-
-        static void Main(string[] args)
-        {
-            Main p = new Main();
-            p.Run(args);
         }
     }
 }

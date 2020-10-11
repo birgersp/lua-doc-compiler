@@ -1,8 +1,7 @@
 ﻿using System;
-using LDCLib.src;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace LDCTest.src
+namespace LDC
 {
     [TestClass]
     public class ArgParserTest

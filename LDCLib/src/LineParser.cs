@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LDCLib
+namespace LDC
 {
     public class LineParser
     {

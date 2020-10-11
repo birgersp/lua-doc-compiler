@@ -1,12 +1,11 @@
-﻿using LDCLib.src;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace LDCLib
+namespace LDC
 {
     public class Parser
     {

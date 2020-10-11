@@ -1,12 +1,11 @@
-﻿using LDCLib.src;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LDCTest.src
+namespace LDC
 {
     [TestClass]
     public class UtilTest

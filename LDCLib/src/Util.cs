@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace LDCLib.src
+namespace LDC
 {
     public class Util
     {
-        static string[] BoolStringAlternatives = { "1", "true", "yes" };
+        static readonly string[] BoolStringAlternatives = { "1", "true", "yes" };
 
         public static string Extract(string input, string pattern)
         {
@@ -25,6 +25,11 @@ namespace LDCLib.src
         {
             var lowercase = input.ToLower();
             return BoolStringAlternatives.Any(str => str.Equals(lowercase));
+        }
+
+        public static void Log(object obj)
+        {
+            Console.WriteLine(obj);
         }
     }
 }

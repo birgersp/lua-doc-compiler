@@ -1,4 +1,4 @@
-﻿using LDCLib;
+﻿using LDC;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -8,7 +8,7 @@ using System.Security.Policy;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace LDCTest
+namespace LDC
 {
     [TestClass]
     public class ParserTest
