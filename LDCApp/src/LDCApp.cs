@@ -149,6 +149,17 @@ namespace LDC
         {
             html.Add("h3 class='typeheader'", $"Type {type.Name}");
             var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
+
+            html.Open("table", "tbody");
+            foreach (var function in functions.Values)
+            {
+                html.Open("tr");
+                html.Add("td", "p class='cell'", function.Name);
+                html.Add("td", "p class='cell'", function.Description);
+                html.Close("tr");
+            }
+            html.Close("tbody", "table");
+
             foreach (var function in functions.Values)
             {
                 WriteFunction(function, html, $"{type.Name}:");
