@@ -109,6 +109,7 @@ namespace LDC
 
         void WriteModule(LuaModule module, HtmlBuilder html)
         {
+            var htmlDocName = GetModuleHTMLFilename(module);
             html.Add("h1", module.Name);
             if (module.Description.Length > 0)
             {
@@ -130,7 +131,7 @@ namespace LDC
                 html.Open("ul");
                 foreach (var type in includedTypes.Values)
                 {
-                    html.Add("li", type.Name);
+                    html.Add("li", $"a href='{htmlDocName}#{type.Name}'", type.Name);
                 }
                 html.Close("ul");
             }
@@ -138,17 +139,7 @@ namespace LDC
             if (functions.Count > 0)
             {
                 html.Add("h2", "Functions");
-                var htmlDocName = GetModuleHTMLFilename(module);
-                html.Open("table", "tbody");
-                foreach (var function in functions.Values)
-                {
-                    var link = $"{htmlDocName}#{function.Name}";
-                    html.Open("tr");
-                    html.Add("td", "p class='cell'", $"a href='{link}'", function.Name);
-                    html.Add("td", "p class='cell'", function.Description);
-                    html.Close("tr");
-                }
-                html.Close("tbody", "table");
+                WriteFunctionTable(functions.Values, html, $"{htmlDocName}#");
                 foreach (var function in functions.Values)
                 {
                     WriteFunction(function, html, function.Name, GetModuleHTMLFilename(module));
@@ -164,24 +155,31 @@ namespace LDC
         {
             var htmlDocName = GetModuleHTMLFilename(module);
 
-            html.Add("h3 class='typeheader'", $"Type {type.Name}");
+            html.Add($"h3 class='typeheader' id='{type.Name}'", $"Type {type.Name}");
             var functions = Util.ArrayToSorted(type.Functions, f => f.Name);
-
-            html.Open("table", "tbody");
-            foreach (var function in functions.Values)
-            {
-                var link = $"{htmlDocName}#{type.Name}:{function.Name}";
-                html.Open("tr");
-                html.Add("td", "p class='cell'", $"a href='{link}'", function.Name);
-                html.Add("td", "p class='cell'", function.Description);
-                html.Close("tr");
-            }
-            html.Close("tbody", "table");
-
+            WriteFunctionTable(functions.Values, html, $"{htmlDocName}#{type.Name}:");
             foreach (var function in functions.Values)
             {
                 WriteFunction(function, html, $"{type.Name}:{function.Name}", htmlDocName);
             }
+        }
+
+        void WriteFunctionTable(IEnumerable<LuaFunction> functions, HtmlBuilder html, string linkPrefix)
+        {
+            html.Open("table", "tbody");
+            html.Open("tr");
+            html.Add("td", "p class='cellheader'", "Name");
+            html.Add("td class='funcdesccell'", "p class='cellheader'", "Description");
+            html.Close("tr");
+            foreach (var function in functions)
+            {
+                var link = $"{linkPrefix}{function.Name}";
+                html.Open("tr");
+                html.Add("td", "p class='cell'", $"a href='{link}'", function.Name);
+                html.Add("td class='funcdesccell'", "p class='cell'", function.Description);
+                html.Close("tr");
+            }
+            html.Close("tbody", "table");
         }
 
         void WriteFunction(LuaFunction function, HtmlBuilder html, string name, string htmlDocName)
