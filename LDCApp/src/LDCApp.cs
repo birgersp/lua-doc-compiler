@@ -135,9 +135,24 @@ namespace LDC
                 html.Close("ul");
             }
             var functions = Util.ArrayToSortedDict(module.LuaFunctions, f => f.Name);
-            foreach (var function in functions.Values)
+            if (functions.Count > 0)
             {
-                WriteFunction(function, html, function.Name, GetModuleHTMLFilename(module));
+                html.Add("h2", "Functions");
+                var htmlDocName = GetModuleHTMLFilename(module);
+                html.Open("table", "tbody");
+                foreach (var function in functions.Values)
+                {
+                    var link = $"{htmlDocName}#{function.Name}";
+                    html.Open("tr");
+                    html.Add("td", "p class='cell'", $"a href='{link}'", function.Name);
+                    html.Add("td", "p class='cell'", function.Description);
+                    html.Close("tr");
+                }
+                html.Close("tbody", "table");
+                foreach (var function in functions.Values)
+                {
+                    WriteFunction(function, html, function.Name, GetModuleHTMLFilename(module));
+                }
             }
             foreach (var type in includedTypes.Values)
             {
@@ -172,7 +187,6 @@ namespace LDC
         void WriteFunction(LuaFunction function, HtmlBuilder html, string name, string htmlDocName)
         {
             html.Open($"div id='{name}'");
-            html.Open("hr");
             html.Add("h4 class='functionheader'", $"a href='{htmlDocName}#{name}'", name);
             if (function.Description.Length > 0)
             {
@@ -192,6 +206,7 @@ namespace LDC
                 }
                 html.Add("ul", "li", $"{returnLine}");
             }
+            html.Open("hr");
             html.Close("div");
         }
 
