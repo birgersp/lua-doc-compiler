@@ -34,10 +34,13 @@ namespace LDC
         public bool OverwriteStylesheet = false;
         readonly Parser Parser = new Parser();
         readonly SortedDictionary<string, LuaModule> IncludedModules = new SortedDictionary<string, LuaModule>();
+        readonly Dictionary<string, string> Links = new Dictionary<string, string>();
 
         public void Execute()
         {
             ParseInputFiles();
+            CreateLinks();
+            DetermineIncludedModules();
             WriteToOutFiles();
             try
             {
@@ -65,6 +68,44 @@ namespace LDC
             }
         }
 
+        void DetermineIncludedModules()
+        {
+            foreach (var module in Parser.LuaModules.Values)
+            {
+                if (!ModuleHasContent(module))
+                {
+                    continue;
+                }
+                IncludedModules.Add(module.Name, module);
+            }
+        }
+
+        void CreateLinks()
+        {
+            foreach (var module in IncludedModules.Values)
+            {
+                CreateModuleLinks(module);
+            }
+        }
+
+        void CreateModuleLinks(LuaModule module)
+        {
+            var htmlFilename = GetModuleHTMLFilename(module);
+            Links.Add($"{module.Name}", htmlFilename);
+            foreach (var function in module.LuaFunctions)
+            {
+                Links.Add($"{module.Name}#{function.Name}", $"{htmlFilename}#{function.Name}");
+            }
+            foreach (var type in module.LuaTypes.Values)
+            {
+                Links.Add($"{module.Name}#{type.Name}", $"{htmlFilename}#{type.Name}");
+                foreach (var function in type.Functions)
+                {
+                    Links.Add($"{module.Name}#{type.Name}.{function.Name}", $"{htmlFilename}#{type.Name}.{function.Name}");
+                }
+            }
+        }
+
         void ParseFile(string fileName)
         {
             foreach (var line in File.ReadLines(fileName))
@@ -75,14 +116,6 @@ namespace LDC
 
         void WriteToOutFiles()
         {
-            foreach (var module in Parser.LuaModules.Values)
-            {
-                if (!ModuleHasContent(module))
-                {
-                    continue;
-                }
-                IncludedModules.Add(module.Name, module);
-            }
             var templateData = GetTemplateWithMenu();
             Directory.CreateDirectory(OutDir);
             foreach (var module in IncludedModules.Values)
@@ -218,7 +251,13 @@ namespace LDC
                 {
                     continue;
                 }
-                html.Add("li", $"{param.TypeName} {param.Name} - {param.Description}");
+                var text = $"{param.TypeName} {param.Name} - {param.Description}";
+                if (Links.TryGetValue(param.TypeName, out string link))
+                {
+                    html.Add("li", $"a href='{link}'", text);
+                } else {
+                    html.Add("li", text);
+                }
             }
             html.Close("ul");
         }
