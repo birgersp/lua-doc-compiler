@@ -26,29 +26,18 @@ namespace LDCApp.src
 
         public void Add(params string[] entries)
         {
-            if (entries.Length == 1)
+            var index = 0;
+            while (index < entries.Length - 1)
             {
-                AddLiteral(entries[0]);
-                data.Append("\n");
-                return;
+                Open(entries[index++]);
             }
-            if (entries.Length > 1)
+            AddLiteral(entries[index--]);
+            while (index >= 0)
             {
-                var index = 0;
-                while (index < entries.Length - 1)
-                {
-                    Open(entries[index++]);
-                }
-                AddLiteral(entries.Last());
-                index--;
-                while(index >= 0)
-                {
-                    var tag = Regex.Replace(entries[index--], " .*", "");
-                    Close(tag);
-                }
-                data.Append("\n");
-                return;
+                var tag = Regex.Replace(entries[index--], " .*", "");
+                Close(tag);
             }
+            data.Append("\n");
         }
 
         public void Open(params string[] tags)
