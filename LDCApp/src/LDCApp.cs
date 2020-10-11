@@ -71,86 +71,21 @@ namespace LDC
             }
         }
 
-        void WriteFunction(LuaFunction function, HtmlBuilder dest, string prefix = "")
+        void WriteToOutFiles()
         {
-            var id = $"{prefix}{function.Name}";
-            dest.Open($"div id='{id}'");
-            dest.Open("hr");
-            dest.Add("h4 class='functionheader'", $"a href='#{id}'", $"{prefix}{function.Name}");
-            if (function.Description.Length > 0)
+            var templateData = GetTemplateWithMenu();
+            Directory.CreateDirectory(OutDir);
+            foreach (var module in Parser.LuaModules.Values)
             {
-                dest.Add("p", function.Description);
-            }
-            if (function.Parameters.Count > 1)
-            {
-                dest.Add("h4 class='funcparamheader'", "Parameters");
-                dest.Open("ul class='funcparamlist'");
-                foreach (var param in function.Parameters)
-                {
-                    if (param.Name == "self")
-                    {
-                        continue;
-                    }
-                    dest.Add("li", $"{param.TypeName} {param.Name} - {param.Description}");
-                }
-                dest.Close("ul");
-            }
-            if (function.ReturnType != null)
-            {
-                dest.Add("h4 class='funcreturnheader'", "Return");
-                string returnLine = function.ReturnType;
-                if (function.ReturnDescription.Length > 0)
-                {
-                    returnLine += $" - {function.ReturnDescription}";
-                }
-                dest.Add("ul", "li", $"{returnLine}");
-            }
-            dest.Close("div");
-        }
-
-        void WriteType(LuaType type, HtmlBuilder dest)
-        {
-            dest.Add("h3 class='typeheader'", $"Type {type.Name}");
-            foreach (var function in type.Functions)
-            {
-                WriteFunction(function, dest, $"{type.Name}:");
-            }
-        }
-
-        void WriteModule(LuaModule module, HtmlBuilder builder)
-        {
-            builder.Add("h1", module.Name);
-            if (module.Description.Length > 0)
-            {
-                builder.Add("p", module.Description);
-            }
-            var hasAnyValidTypes = false;
-            foreach (var type in module.LuaTypes.Values)
-            {
-                if (type.Name.Length == 0 ||
-                    (type.Fields.Count == 0 && type.Functions.Count == 0))
+                if (!ModuleHasContent(module))
                 {
                     continue;
                 }
-                if (!hasAnyValidTypes)
-                {
-                    builder.Add("h2", "Types");
-                    hasAnyValidTypes = true;
-                }
-                builder.Add("p", type.Name);
-            }
-            foreach (var function in module.LuaFunctions)
-            {
-                WriteFunction(function, builder);
-            }
-            foreach (var type in module.LuaTypes.Values)
-            {
-                if (type.Name.Length == 0 ||
-                    (type.Fields.Count == 0 && type.Functions.Count == 0))
-                {
-                    continue;
-                }
-                WriteType(type, builder);
+                string fileName = GetModuleHTMLFilename(module);
+                var builder = new HtmlBuilder();
+                WriteModule(module, builder);
+                var contentData = templateData.Replace("@@CONTENT@@", builder.ToString());
+                File.WriteAllText($"{OutDir}\\{fileName}", contentData.ToString());
             }
         }
 
@@ -170,22 +105,92 @@ namespace LDC
             return templateData.Replace("@@MODULES@@", menuBuilder.ToString());
         }
 
-        void WriteToOutFiles()
+        void WriteModule(LuaModule module, HtmlBuilder html)
         {
-            var templateData = GetTemplateWithMenu();
-            Directory.CreateDirectory(OutDir);
-            foreach (var module in Parser.LuaModules.Values)
+            html.Add("h1", module.Name);
+            if (module.Description.Length > 0)
             {
-                if (!ModuleHasContent(module))
+                html.Add("p", module.Description);
+            }
+            var hasAnyValidTypes = false;
+            foreach (var type in module.LuaTypes.Values)
+            {
+                if (type.Name.Length == 0 ||
+                    (type.Fields.Count == 0 && type.Functions.Count == 0))
                 {
                     continue;
                 }
-                string fileName = GetModuleHTMLFilename(module);
-                var builder = new HtmlBuilder();
-                WriteModule(module, builder);
-                var contentData = templateData.Replace("@@CONTENT@@", builder.ToString());
-                File.WriteAllText($"{OutDir}\\{fileName}", contentData.ToString());
+                if (!hasAnyValidTypes)
+                {
+                    html.Add("h2", "Types");
+                    hasAnyValidTypes = true;
+                }
+                html.Add("p", type.Name);
             }
+            foreach (var function in module.LuaFunctions)
+            {
+                WriteFunction(function, html);
+            }
+            foreach (var type in module.LuaTypes.Values)
+            {
+                if (type.Name.Length == 0 ||
+                    (type.Fields.Count == 0 && type.Functions.Count == 0))
+                {
+                    continue;
+                }
+                WriteType(type, html);
+            }
+        }
+
+        void WriteType(LuaType type, HtmlBuilder html)
+        {
+            html.Add("h3 class='typeheader'", $"Type {type.Name}");
+            foreach (var function in type.Functions)
+            {
+                WriteFunction(function, html, $"{type.Name}:");
+            }
+        }
+
+        void WriteFunction(LuaFunction function, HtmlBuilder html, string prefix = "")
+        {
+            var id = $"{prefix}{function.Name}";
+            html.Open($"div id='{id}'");
+            html.Open("hr");
+            html.Add("h4 class='functionheader'", $"a href='#{id}'", $"{prefix}{function.Name}");
+            if (function.Description.Length > 0)
+            {
+                html.Add("p", function.Description);
+            }
+            if (function.Parameters.Count > 1)
+            {
+                WriteFunctionParams(function, html);
+            }
+            if (function.ReturnType != null)
+            {
+                html.Add("h4 class='funcreturnheader'", "Return");
+                string returnLine = function.ReturnType;
+                if (function.ReturnDescription.Length > 0)
+                {
+                    returnLine += $" - {function.ReturnDescription}";
+                }
+                html.Add("ul", "li", $"{returnLine}");
+            }
+            html.Close("div");
+        }
+
+        void WriteFunctionParams(LuaFunction function, HtmlBuilder html)
+        {
+            html.Add("h4 class='funcparamheader'", "Parameters");
+            html.Open("ul class='funcparamlist'");
+            foreach (var param in function.Parameters)
+            {
+                if (param.Name == "self")
+                {
+                    continue;
+                }
+                html.Add("li", $"{param.TypeName} {param.Name} - {param.Description}");
+            }
+            html.Close("ul");
         }
     }
 }
