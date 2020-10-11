@@ -153,13 +153,18 @@ namespace LDCApp
             {
                 builder.Add("p", module.Description);
             }
-            builder.Add("h2", "Types");
+            var hasAnyValidTypes = false;
             foreach (var type in module.LuaTypes.Values)
             {
                 if (type.Name.Length == 0 ||
                     (type.Fields.Count == 0 && type.Functions.Count == 0))
                 {
                     continue;
+                }
+                if (!hasAnyValidTypes)
+                {
+                    builder.Add("h2", "Types");
+                    hasAnyValidTypes = true;
                 }
                 builder.Add("p", type.Name);
             }

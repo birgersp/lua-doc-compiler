@@ -1,3 +1,7 @@
+body {
+    font-family: Arial;
+}
+
 a:visited, a:link, a:hover, a:active {
     color: blue;
     font-weight: bold;
@@ -16,10 +20,21 @@ hr {
     height: 100%;
 }
 
+.modulelink {
+    font-size: 1em;
+    margin-top: 0.2em;
+    margin-bottom: 0.2em;
+}
+
 .content {
     height: 100%;
     overflow-y: scroll;
     padding-left: 0.5em;
+}
+
+.content2 {
+    margin-bottom: 10em;
+    margin-right: 1em;
 }
 
 .typeheader {
