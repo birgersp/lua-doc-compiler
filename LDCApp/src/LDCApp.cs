@@ -31,6 +31,7 @@ namespace LDC
 
         public string InDir = ".";
         public string OutDir = "doc";
+        public string InFile = "";
         public bool OverwriteStylesheet = false;
         readonly Parser Parser = new Parser();
         readonly SortedDictionary<string, LuaModule> IncludedModules = new SortedDictionary<string, LuaModule>();
@@ -55,7 +56,15 @@ namespace LDC
 
         void ParseInputFiles()
         {
-            var files = Directory.GetFiles(InDir);
+            string[] files;
+            if (InFile != "")
+            {
+                files = new string[]{ $"{InDir}\\{InFile}" };
+            }
+            else
+            {
+                files = Directory.GetFiles(InDir);
+            }
             foreach (var file in files)
             {
                 var fileSuffix = Regex.Replace(file, "^.*\\.", "");
@@ -255,7 +264,9 @@ namespace LDC
                 if (Links.TryGetValue(param.TypeName, out string link))
                 {
                     html.Add("li", $"a href='{link}'", text);
-                } else {
+                }
+                else
+                {
                     html.Add("li", text);
                 }
             }

@@ -27,6 +27,9 @@ namespace LDC
             {
                 App.OverwriteStylesheet = Util.ParseBoolString(str);
             });
+            argParser.AddAlternative("inFile", (str) => {
+                App.InFile = str;
+            });
             foreach (var arg in args)
             {
                 argParser.Parse(arg);
