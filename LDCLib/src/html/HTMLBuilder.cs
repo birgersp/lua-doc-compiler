@@ -13,7 +13,8 @@ namespace LDC
 		{
 			return text
 				.Replace("<", "&lt;")
-				.Replace(">", "&gt;");
+				.Replace(">", "&gt;")
+				.Replace("\n", "<br>");
 		}
 
 		public void AddLiteral(string text)
