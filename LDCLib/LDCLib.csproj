@@ -51,5 +51,10 @@
     <Compile Include="src\html\TableBuilder.cs" />
     <Compile Include="src\Util.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="src\template.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
